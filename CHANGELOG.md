@@ -1,3 +1,51 @@
+## [2.11.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.10.0...v2.11.0) (2026-07-09)
+* add semantic-release and CI workflow rules to CLAUDE.md
+
+* fix template issues (PL-5/6/7/8), Zig 0.16, start versions at v0
+
+Resolves the open Platform issues, migrates the Zig template to the
+latest stable toolchain, makes new libraries start their version
+history at v0, and hardens the template publish pipeline so releases
+work end to end.
+
+**Linear issues**
+
+- PL-5: scaffold now removes templates/ and test/ from generated
+  projects (the rsync --exclude was a no-op in the in-place flow); an
+  in-place bats test guards the regression
+- PL-6: uv template install provisions semantic-release and carries
+  _.path, so scaffolded uv projects can release
+- PL-7: bump actions/checkout to v6 and jdx/mise-action to v4
+- PL-8: rename .mise-tasks/ to mise-tasks/ across scaffold, task
+  definitions, tests, and docs; add Prettier markdown linting under
+  `lint` (format-check stays dependency-free for the scaffold contract
+  test) and disable embedded-code formatting so doc examples are left
+  as authored
+
+**Zig 0.16**
+
+- pin zig 0.16.0 and declare minimum_zig_version in build.zig.zon
+
+**v0 versioning**
+
+- seed a v0.0.0 baseline tag at the root commit in upversion when no
+  final release tag exists, so the first release is 0.x not 1.0.0; the
+  guard ignores -rc pre-release tags
+- seed initial versions at 0.0.0 (version.txt and uv pyproject)
+
+**Publish pipeline**
+
+- pin pnpm to 10 and approve esbuild's build script; publish with
+  mise's pnpm, not corepack (which pulls pnpm 11)
+- authenticate npm via a user-level ~/.npmrc (pnpm 10 ignores a project
+  .npmrc) and fail fast on an empty NPM_TOKEN
+- publish RC packages to PyPI/npm (TestPyPI is unreachable from CI)
+  with re-run-safe versions via GITHUB_RUN_ATTEMPT; idempotent GitHub
+  pre-release; grant contents:write to the publish-rc job
+- anchor the build.zig.zon version sed so it skips minimum_zig_version
+
+Closes PL-5, PL-6, PL-7, PL-8
+
 ## [2.10.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.9.0...v2.10.0) (2026-03-18)
 
 ### Features
