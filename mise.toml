@@ -44,7 +44,8 @@ npm install --no-save --prefix "{{config_root}}" \
   @semantic-release/exec \
   @semantic-release/git \
   @semantic-release/github \
-  conventional-changelog-conventionalcommits
+  conventional-changelog-conventionalcommits \
+  prettier
 """
 
 [tasks.build]
@@ -96,13 +97,17 @@ run         = 'echo "TODO: Implement formatting"'
 description = "Check code formatting (CI mode)"
 run         = 'echo "TODO: Implement format checking"'
 
+# Markdown linting lives under `lint` (not `format-check`) on purpose: `format-check`
+# is exercised by the scaffold contract test (test/helpers/contract.bash) on a
+# freshly-scaffolded project with no deps installed, so it must stay dependency-free,
+# whereas `lint` is not in that runnable set and can require prettier (via `install`).
 [tasks.lint]
-description = "Lint code"
-run         = 'echo "TODO: Implement linting"'
+description = "Lint markdown with Prettier"
+run         = 'prettier --check "**/*.md"'
 
 [tasks.lint-fix]
-description = "Lint and auto-fix issues"
-run         = 'echo "TODO: Implement lint auto-fixing"'
+description = "Auto-fix markdown formatting with Prettier"
+run         = 'prettier --write "**/*.md"'
 
 
 # =============================================================================
@@ -142,7 +147,7 @@ run         = "echo $VERSION"
 
 [tasks.version-next]
 description = "Get next version (from semantic-release)"
-run         = "bash -c 'source .mise-tasks/utils && get_next_version'"
+run         = "bash -c 'source mise-tasks/utils && get_next_version'"
 
 # =============================================================================
 # TEMPLATE
@@ -154,11 +159,11 @@ run         = "find templates/ -mindepth 1 -maxdepth 1 -type d -exec basename {}
 
 [tasks.publish-templates]
 description = "Publish template packages to their respective registries"
-run         = ".mise-tasks/publish-templates"
+run         = "mise-tasks/publish-templates"
 
 [tasks.publish-templates-rc]
 description = "Publish RC versions of template packages (CI pre-release validation)"
-run         = ".mise-tasks/publish-templates-rc"
+run         = "mise-tasks/publish-templates-rc"
 
 [tasks.test-template]
 description = "Run bats tests for scaffold, all templates, and docker contracts"

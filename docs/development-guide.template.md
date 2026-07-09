@@ -42,7 +42,7 @@ mise run test   # To run tests
 {{PROJECT_NAME}}/
 ├── .github/           # GitHub Actions workflows
 ├── .claude/           # AI assistant configuration
-├── .mise-tasks/       # File-based mise tasks (typically bash scripts)
+├── mise-tasks/       # File-based mise tasks (typically bash scripts)
 ├── docs/              # Documentation
 ├── src/               # Source code
 ├── test/              # Tests

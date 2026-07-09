@@ -62,7 +62,7 @@ teardown() {
     # Verify essential platform files are present
     [ -f "$EXTRACT_DIR/README.md" ]
     [ -f "$EXTRACT_DIR/mise.toml" ]
-    [ -f "$EXTRACT_DIR/.mise-tasks/scaffold" ]
+    [ -f "$EXTRACT_DIR/mise-tasks/scaffold" ]
     [ -d "$EXTRACT_DIR/.claude" ]
 
     # Claude commands directory should contain README with plugin installation info
@@ -77,9 +77,9 @@ teardown() {
     [ -d "$EXTRACT_DIR/docs" ]
     [ ! -d "$EXTRACT_DIR/docs/migrations" ]
 
-    # .mise-tasks/ should exist with scaffold but not platform-install.sh
-    [ -d "$EXTRACT_DIR/.mise-tasks" ]
-    [ -f "$EXTRACT_DIR/.mise-tasks/scaffold" ]
+    # mise-tasks/ should exist with scaffold but not platform-install.sh
+    [ -d "$EXTRACT_DIR/mise-tasks" ]
+    [ -f "$EXTRACT_DIR/mise-tasks/scaffold" ]
     [ ! -f "$EXTRACT_DIR/scripts/platform-install.sh" ]
 }
 

@@ -219,9 +219,9 @@ apply_template() {
         --exclude='node_modules' \
         "$template_src/" "$dest/"
 
-    # Ensure .mise-tasks/ scripts are executable
-    if [[ -d "$dest/.mise-tasks" ]]; then
-        chmod +x "$dest/.mise-tasks/"* 2>/dev/null || true
+    # Ensure mise-tasks/ scripts are executable
+    if [[ -d "$dest/mise-tasks" ]]; then
+        chmod +x "$dest/mise-tasks/"* 2>/dev/null || true
     fi
 
     # Re-run name substitutions on newly overlaid files
@@ -485,7 +485,7 @@ if [ ! -f "$MISE_TOML" ]; then
 fi
 
 # Create version.txt with initial version
-echo "0.1.0" > "$DEST_DIR/version.txt"
+echo "0.0.0" > "$DEST_DIR/version.txt"
 
 # Configure GCP if requested (PROJECT name already replaced by bulk substitution above)
 if [ "$CONFIGURE_GCP" = true ]; then
@@ -554,11 +554,18 @@ if [ -f "$MISE_TOML" ]; then
     sed_inplace '/^# TEMPLATE$/,$ {/^# TEMPLATE$/d; d;}' "$MISE_TOML"
 fi
 
-# Remove template-only .mise-tasks scripts — not needed in scaffolded projects
-rm -f "$DEST_DIR/.mise-tasks/template-utils"
-rm -f "$DEST_DIR/.mise-tasks/publish-templates"
-rm -f "$DEST_DIR/.mise-tasks/publish-templates-rc"
+# Remove template-only mise-tasks scripts — not needed in scaffolded projects
+rm -f "$DEST_DIR/mise-tasks/template-utils"
+rm -f "$DEST_DIR/mise-tasks/publish-templates"
+rm -f "$DEST_DIR/mise-tasks/publish-templates-rc"
 log_info "Removed template-only scripts from scaffolded project"
+
+# Remove template development directories — not needed in scaffolded projects.
+# rsync --exclude only prevents *copying*; in the in-place CLI flow these already
+# exist in DEST and must be deleted explicitly (PL-5).
+rm -rf "$DEST_DIR/templates"
+rm -rf "$DEST_DIR/test"
+log_info "Removed templates/ and test/ from scaffolded project"
 
 # Strip template-only steps/jobs from CI workflows
 CI_YML="$DEST_DIR/.github/workflows/ci.yml"
@@ -569,7 +576,6 @@ if [ -f "$CI_YML" ]; then
     # Rewrite publish-rc job to call project's own publish-rc task (not template-specific)
     sed_inplace 's/mise run publish-templates-rc/mise run publish-rc/' "$CI_YML"
     sed_inplace 's/Publish RC template packages/Publish RC package/' "$CI_YML"
-    sed_inplace 's/TEST_PYPI_TOKEN/PYPI_TOKEN/' "$CI_YML"
 fi
 
 RELEASE_YML="$DEST_DIR/.github/workflows/release.yml"

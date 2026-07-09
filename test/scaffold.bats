@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Tests for .mise-tasks/scaffold
+# Tests for mise-tasks/scaffold
 #
 # Install bats: brew install bats-core
 # Run: bats test/scaffold.bats
@@ -53,7 +53,7 @@ teardown() {
 @test "scaffold.sh defaults to project root when --src and --dest not provided" {
     # When run without args, should use current directory as default
     # We'll run with --non-interactive to avoid prompts
-    run bash ./.mise-tasks/scaffold --non-interactive
+    run bash ./mise-tasks/scaffold --non-interactive
 
     # Should succeed (defaults to current dir for both src and dest)
     [ "$status" -eq 0 ]
@@ -61,14 +61,14 @@ teardown() {
 }
 
 @test "scaffold.sh validates source directory exists" {
-    run bash ./.mise-tasks/scaffold --src /nonexistent --dest ../..
+    run bash ./mise-tasks/scaffold --src /nonexistent --dest ../..
 
     [ "$status" -eq 1 ]
     [[ "$output" == *"Source directory does not exist"* ]]
 }
 
 @test "scaffold.sh validates destination directory exists" {
-    run bash ./.mise-tasks/scaffold --src . --dest /nonexistent
+    run bash ./mise-tasks/scaffold --src . --dest /nonexistent
 
     [ "$status" -eq 1 ]
     [[ "$output" == *"Destination directory does not exist"* ]]
@@ -76,7 +76,7 @@ teardown() {
 
 @test "validates project name in non-interactive mode" {
     # Rejects invalid characters (spaces)
-    run bash ./.mise-tasks/scaffold \
+    run bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -86,7 +86,7 @@ teardown() {
     [[ "$output" == *"Invalid project name"* ]]
 
     # Accepts valid characters
-    run bash ./.mise-tasks/scaffold \
+    run bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -97,7 +97,7 @@ teardown() {
 }
 
 @test "updates mise.toml with template tracking variables" {
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -116,14 +116,14 @@ teardown() {
     [ "$status" -eq 0 ]
     [[ "$output" == *"$VERSION"* ]]
 
-    # Resets project version to 0.1.0 in version.txt
+    # Resets project version to 0.0.0 in version.txt
     [ -f "$DEST_DIR/version.txt" ]
     run cat "$DEST_DIR/version.txt"
     [ "$status" -eq 0 ]
-    [[ "$output" == "0.1.0" ]]
+    [[ "$output" == "0.0.0" ]]
 
     # No duplicates on second run
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -138,7 +138,7 @@ teardown() {
     touch "$DEST_DIR/.claude/plan.md" "$DEST_DIR/.claude/workflows.md" "$DEST_DIR/.claude/CLAUDE.md"
 
     # By default (without --keep-claude), removes entire .claude directory
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -147,7 +147,7 @@ teardown() {
     [ ! -d "$DEST_DIR/.claude" ]
 
     # With --keep-claude, keeps entire .claude directory
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -161,7 +161,7 @@ teardown() {
 
 
 @test "removes platform-specific files from destination" {
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -169,6 +169,7 @@ teardown() {
 
     # Template development files should be removed
     [ ! -d "$DEST_DIR/test" ]
+    [ ! -d "$DEST_DIR/templates" ]
     [ ! -f "$DEST_DIR/CHANGELOG.md" ]
     [ ! -f "$DEST_DIR/RELEASE_NOTES.md" ]
 
@@ -181,7 +182,7 @@ teardown() {
 }
 
 @test "replaces README.md with template" {
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -208,7 +209,7 @@ teardown() {
 }
 
 @test "shows success message on completion" {
-    run bash ./.mise-tasks/scaffold \
+    run bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -231,7 +232,7 @@ teardown() {
         --exclude='node_modules' \
         . "$NEW_DEST/"
 
-    run bash ./.mise-tasks/scaffold \
+    run bash ./mise-tasks/scaffold \
         --src . \
         --dest "$NEW_DEST" \
         --non-interactive
@@ -252,7 +253,7 @@ teardown() {
     chmod 000 "$SRC_DIR/README.template.md"
 
     # Try to run scaffold (should fail during README template substitution)
-    run bash ./.mise-tasks/scaffold \
+    run bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -271,7 +272,7 @@ teardown() {
 }
 
 @test "removes backup directory on success" {
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -282,7 +283,7 @@ teardown() {
 }
 
 @test "replaces template name in all case variants across all files" {
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -312,7 +313,7 @@ teardown() {
 }
 
 @test "scaffolded project has correct mise.toml tasks" {
-    bash ./.mise-tasks/scaffold \
+    bash ./mise-tasks/scaffold \
         --src . \
         --dest ../.. \
         --non-interactive \
@@ -321,10 +322,10 @@ teardown() {
     cd "$DEST_DIR"
 
     # Should have upgrade task as file task
-    [ -f ".mise-tasks/upgrade" ]
+    [ -f "mise-tasks/upgrade" ]
 
     # Upgrade task should call claude /upgrade
-    run grep -q 'claude /upgrade' ".mise-tasks/upgrade"
+    run grep -q 'claude /upgrade' "mise-tasks/upgrade"
     [ "$status" -eq 0 ]
 
     # Should NOT have template development tasks (in TEMPLATE section)
@@ -343,7 +344,7 @@ teardown() {
     cd "$SRC_DIR"
 
     # User-facing tasks (as file tasks)
-    [ -f ".mise-tasks/upgrade" ]
+    [ -f "mise-tasks/upgrade" ]
 
     # Template development tasks (for testing the template itself)
     run grep -q '\[tasks.test-template\]' mise.toml
@@ -356,7 +357,7 @@ teardown() {
 
 @test "scaffold.sh processes install.sh.template when --non-interactive (defaults to no install.sh)" {
     # When run with --non-interactive, install.sh.template should be removed (default: no install.sh)
-    run bash ./.mise-tasks/scaffold --src "$SRC_DIR" --dest "$DEST_DIR" --non-interactive --project test-project
+    run bash ./mise-tasks/scaffold --src "$SRC_DIR" --dest "$DEST_DIR" --non-interactive --project test-project
 
     [ "$status" -eq 0 ]
 
@@ -369,7 +370,7 @@ teardown() {
 
 @test "scaffold.sh with --keep-claude removes commands except upgrade.md" {
     # When run with --keep-claude, only upgrade.md and README.md should remain
-    run bash ./.mise-tasks/scaffold --src "$SRC_DIR" --dest "$DEST_DIR" --non-interactive --project test-project --keep-claude
+    run bash ./mise-tasks/scaffold --src "$SRC_DIR" --dest "$DEST_DIR" --non-interactive --project test-project --keep-claude
 
     [ "$status" -eq 0 ]
 
@@ -387,9 +388,36 @@ teardown() {
 }
 
 @test "scaffold without --template flag uses agnostic mode" {
-    run bash "$SRC_DIR/.mise-tasks/scaffold" \
+    run bash "$SRC_DIR/mise-tasks/scaffold" \
         --src "$SRC_DIR" --dest "$DEST_DIR" \
         --project "my-lib" --non-interactive
     [ "$status" -eq 0 ]
     grep -q 'TEMPLATE.*"mise-lib-template"' "$DEST_DIR/mise.toml"
+}
+
+@test "in-place scaffold removes templates/ and template tests from pre-populated dest" {
+    # Simulate the real CLI flow: platform files (incl. templates/ + test/) are already
+    # present in DEST, then scaffold runs in-place (src == dest).
+    INPLACE="$PROJECT_DIR/.tmp/inplace"
+    mkdir -p "$INPLACE"
+    rsync -a \
+        --exclude='.git' \
+        --exclude='.tmp' \
+        --exclude='node_modules' \
+        "$ORIGINAL_DIR/" "$INPLACE/"
+
+    # Sanity: the dirs we expect to be cleaned exist before scaffolding
+    [ -d "$INPLACE/templates" ]
+    [ -f "$INPLACE/test/scaffold-templates.bats" ]
+
+    run bash "$INPLACE/mise-tasks/scaffold" \
+        --src "$INPLACE" \
+        --dest "$INPLACE" \
+        --non-interactive \
+        --project inplaceproj
+    [ "$status" -eq 0 ]
+
+    # PL-5: templates/ and the template test files must be gone
+    [ ! -d "$INPLACE/templates" ]
+    [ ! -d "$INPLACE/test" ]
 }

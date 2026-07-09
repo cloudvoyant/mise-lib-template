@@ -5,13 +5,13 @@ Generated from {{TEMPLATE_NAME}} v{{TEMPLATE_VERSION}}.
 ## Prerequisites
 
 - [mise](https://mise.jdx.dev/) — manages Zig and all other tools
-- Zig 0.15.1 is installed automatically by mise via `mise install`
+- Zig 0.16.0 is installed automatically by mise via `mise install`
 - [gh CLI](https://cli.github.com/) for publishing GitHub releases
 
 ## Getting Started
 
 ```bash
-mise install          # install Zig 0.15.1 + node + shellcheck + shfmt
+mise install          # install Zig 0.16.0 + node + shellcheck + shfmt
 mise run build        # debug build
 mise run test         # run tests
 ```

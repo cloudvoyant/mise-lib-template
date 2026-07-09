@@ -1,16 +1,18 @@
 # mise-lib-template Style Guide
 
 <!-- CRITICAL RULES — always apply these; load relevant sections below for your current task -->
+
 ## Critical Rules
 
 - Use `mise run <task>` for all build/test/run commands — check `mise tasks` first, never run npm/bash directly if a task exists
 - Conventional Commits only (`feat:`, `fix:`, `chore:`, etc.) — no AI attributions, subject ≤72 chars
 - Read files before editing; use **Edit** for modifications, **Write** only for new files
-- All `.mise-tasks/` scripts must start with `set -euo pipefail` and `source "$(dirname "$0")/utils"`
-- Template files (`.mise-tasks/scaffold`, `utils`, `upversion`, `version.txt`, `README.template.md`) must NOT be overridden
+- All `mise-tasks/` scripts must start with `set -euo pipefail` and `source "$(dirname "$0")/utils"`
+- Template files (`mise-tasks/scaffold`, `utils`, `upversion`, `version.txt`, `README.template.md`) must NOT be overridden
 
 > **For agents:** This file has additional context-specific rules in tagged sections below.
 > Before starting any task, load the section(s) relevant to what you're doing (e.g. `## Build System`, `## Git Commit Messages`, `## Template Development`).
+
 <!-- END CRITICAL RULES -->
 
 ---
@@ -38,9 +40,9 @@
 
 <!-- @context: shell, bash, mise-tasks -->
 
-## Bash Script Conventions (.mise-tasks/)
+## Bash Script Conventions (mise-tasks/)
 
-New scripts in `.mise-tasks/` must follow this header pattern:
+New scripts in `mise-tasks/` must follow this header pattern:
 
 ```bash
 #!/usr/bin/env bash
@@ -54,7 +56,7 @@ source "$(dirname "$0")/utils"
 **Rules:**
 
 - Always `set -euo pipefail` — fail fast, no silent errors
-- Source `.mise-tasks/utils` for shared logging (`log_info`, `log_error`, `log_warn`)
+- Source `mise-tasks/utils` for shared logging (`log_info`, `log_error`, `log_warn`)
 - Use `#MISE hide=true` for internal utilities not meant for direct invocation
 - Use `: <<DOCUMENTATION ... DOCUMENTATION` heredoc for complex script documentation
 
@@ -126,6 +128,7 @@ Tests live in `test/` and use bats-core.
 ## Template Development (templates/ directory)
 
 **Adding a new template:**
+
 1. Create `templates/<name>/` directory
 2. Add only files that differ from the agnostic base
 3. Implement ALL contract tasks: build, test, lint, lint-fix, format, format-check,
@@ -136,23 +139,26 @@ Tests live in `test/` and use bats-core.
 7. Register in `templates/README.md`
 
 **Template file restrictions (must NOT override):**
-- `.mise-tasks/scaffold` — scaffold logic is universal
-- `.mise-tasks/utils` — shared utilities
-- `.mise-tasks/upversion` — versioning is universal
+
+- `mise-tasks/scaffold` — scaffold logic is universal
+- `mise-tasks/utils` — shared utilities
+- `mise-tasks/upversion` — versioning is universal
 - `version.txt` — single source of truth for base template version
 - `README.template.md` — base README template
 
 **CLAUDE.md.append rules:**
+
 - Do NOT include `<!-- @context: test, bats -->` — scaffold strips sections with that marker
 - Append only language-specific conventions (commands, code style, testing patterns)
 - A `---` separator is added automatically before the appended content
 
 **Why no template-specific GitHub Actions:**
-`jdx/mise-action@v2` reads `mise.toml` and installs all declared tools (uv, zig, etc.)
+`jdx/mise-action@v4` reads `mise.toml` and installs all declared tools (uv, zig, etc.)
 automatically. Base workflows call `mise run test`, `mise run publish`, etc. — these
 resolve to template-specific implementations via `mise.toml` task definitions.
 
 **Template-only scripts** (removed from scaffolded projects by scaffold cleanup):
-- `.mise-tasks/template-utils` — template discovery helpers
-- `.mise-tasks/publish-templates` — publishes template packages
-- `.mise-tasks/publish-templates-rc` — publishes RC template packages
+
+- `mise-tasks/template-utils` — template discovery helpers
+- `mise-tasks/publish-templates` — publishes template packages
+- `mise-tasks/publish-templates-rc` — publishes RC template packages

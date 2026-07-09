@@ -18,7 +18,7 @@ run_scaffold() {
     local template="${1:-}"
     local args=(--src "$TEMPLATE_SRC" --dest "$DEST" --project "my-lib" --non-interactive)
     [[ -n "$template" ]] && args+=(--template "$template")
-    bash "$TEMPLATE_SRC/.mise-tasks/scaffold" "${args[@]}"
+    bash "$TEMPLATE_SRC/mise-tasks/scaffold" "${args[@]}"
 }
 
 # ── Base repo Docker contract ─────────────────────────────────────────────────

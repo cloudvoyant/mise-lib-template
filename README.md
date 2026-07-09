@@ -13,7 +13,7 @@
 
 Here's what this template gives you off the bat:
 
-- A language-agnostic self-documenting task runner via `mise`. Keep all your project commands organized in `mise.toml` and `.mise-tasks/`.
+- A language-agnostic self-documenting task runner via `mise`. Keep all your project commands organized in `mise.toml` and `mise-tasks/`.
 - Environment variables and tool versions managed in `mise.toml` — no separate `direnv` or `.envrc` needed.
 - CI/CD with GitHub Actions - run test on MR commits, tag and release on merges to main.
 - Easy CI/CD customization with language-agnostic bash scripting - No need to get too deep into GitHub Actions for customization. Modify the publish recipe, set GitHub Secrets and you're good to go.
@@ -36,7 +36,7 @@ Scaffold a new project:
 # Click "Use this template" on GitHub, then:
 git clone <your-new-repo>
 cd <your-new-repo>
-bash .mise-tasks/scaffold --project your-project-name [--template uv|zig]
+bash mise-tasks/scaffold --project your-project-name [--template uv|zig]
 ```
 
 Or just run the scaffold script without flags for an interactive setup!

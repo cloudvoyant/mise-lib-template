@@ -9,7 +9,7 @@ PROJECT  = "mise-lib-template"
 VERSION  = "{{exec(command='cat version.txt 2>/dev/null || echo 0.1.0')}}"
 
 [tools]
-zig        = "0.15.1"
+zig        = "0.16.0"
 node       = "lts"
 bats       = "latest"
 shellcheck = "latest"
@@ -73,12 +73,12 @@ description = "Check Zig formatting without modifying files"
 run         = "zig fmt --check src/"
 
 [tasks.lint]
-description = "Lint .mise-tasks/ shell scripts with shellcheck"
-run         = "shellcheck .mise-tasks/*"
+description = "Lint mise-tasks/ shell scripts with shellcheck"
+run         = "shellcheck mise-tasks/*"
 
 [tasks.lint-fix]
-description = "Auto-fix .mise-tasks/ shell script formatting with shfmt"
-run         = "shfmt -w .mise-tasks/*"
+description = "Auto-fix mise-tasks/ shell script formatting with shfmt"
+run         = "shfmt -w mise-tasks/*"
 
 [tasks.clean]
 description = "Remove Zig build artifacts"
@@ -86,11 +86,11 @@ run         = "rm -rf zig-out/ zig-cache/ .zig-cache/"
 
 [tasks.build-all-platforms]
 description = "Cross-compile for Linux/macOS/Windows x86_64+aarch64"
-run         = ".mise-tasks/build-all-platforms"
+run         = "mise-tasks/build-all-platforms"
 
 [tasks.publish]
 description = "Create GitHub release with cross-platform binaries"
-run         = ".mise-tasks/publish"
+run         = "mise-tasks/publish"
 
 [tasks.docker-build]
 description = "Build Docker image"
@@ -114,8 +114,8 @@ run         = "mise run upversion -- --dry-run"
 
 [tasks.upversion]
 description = "Run semantic-release to version and changelog"
-run         = ".mise-tasks/upversion"
+run         = "mise-tasks/upversion"
 
 [tasks.publish-rc]
 description = "Publish RC binaries to GitHub pre-release"
-run         = ".mise-tasks/publish-rc"
+run         = "mise-tasks/publish-rc"

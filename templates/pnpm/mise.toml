@@ -10,7 +10,7 @@ VERSION  = "{{exec(command='node -p \"require(\\\"./package.json\\\").version\" 
 
 [tools]
 node       = "lts"
-pnpm       = "latest"
+pnpm       = "10"
 bats       = "latest"
 shellcheck = "latest"
 shfmt      = "latest"
@@ -85,8 +85,8 @@ run         = "mise run upversion -- --dry-run"
 
 [tasks.upversion]
 description = "Run semantic-release to version and changelog"
-run         = ".mise-tasks/upversion"
+run         = "mise-tasks/upversion"
 
 [tasks.publish-rc]
 description = "Publish RC package to npm with 'next' tag"
-run         = ".mise-tasks/publish-rc"
+run         = "mise-tasks/publish-rc"
