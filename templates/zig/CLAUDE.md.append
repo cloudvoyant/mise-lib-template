@@ -29,7 +29,7 @@
 - Linux: `x86_64-linux`, `aarch64-linux`
 - macOS: `x86_64-macos`, `aarch64-macos`
 - Windows: `x86_64-windows`
-- Zig 0.15.1 required (pinned in `mise.toml` `[tools]`)
+- Zig 0.16.0 required (pinned in `mise.toml` `[tools]`)
 
 **Adding Zig dependencies:**
 1. Add to `build.zig.zon` under `.dependencies`

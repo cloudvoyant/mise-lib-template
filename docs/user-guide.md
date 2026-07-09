@@ -26,12 +26,12 @@ To install mise, run:
 
 ## Choosing a Template
 
-| Template | When to use | Language | Registry |
-|---|---|---|---|
-| agnostic | Any language — fill in your own tasks | Any | GCP Artifact Registry |
-| uv | Python library or CLI | Python 3.12+ | PyPI |
-| zig | Zig library or binary with cross-platform builds | Zig 0.15.x | GitHub Releases |
-| pnpm | TypeScript library published to npm | TypeScript / Node.js LTS | npm |
+| Template | When to use                                      | Language                 | Registry              |
+| -------- | ------------------------------------------------ | ------------------------ | --------------------- |
+| agnostic | Any language — fill in your own tasks            | Any                      | GCP Artifact Registry |
+| uv       | Python library or CLI                            | Python 3.12+             | PyPI                  |
+| zig      | Zig library or binary with cross-platform builds | Zig 0.16.x               | GitHub Releases       |
+| pnpm     | TypeScript library published to npm              | TypeScript / Node.js LTS | npm                   |
 
 All tools are installed automatically by mise — you do not need to install Python or Zig separately.
 
@@ -43,9 +43,9 @@ Scaffold a new project:
 # Click "Use this template" on GitHub, then:
 ❯ git clone <your-new-repo>
 ❯ cd <your-new-repo>
-❯ bash .mise-tasks/scaffold --project your-project-name --template uv    # Python
-❯ bash .mise-tasks/scaffold --project your-project-name --template zig   # Zig
-❯ bash .mise-tasks/scaffold --project your-project-name                   # agnostic (prompted)
+❯ bash mise-tasks/scaffold --project your-project-name --template uv    # Python
+❯ bash mise-tasks/scaffold --project your-project-name --template zig   # Zig
+❯ bash mise-tasks/scaffold --project your-project-name                   # agnostic (prompted)
 ```
 
 Install dependencies and scaffold the template for your needs:
@@ -169,6 +169,13 @@ git push origin main
 
 CI/CD automatically runs tests, creates a release, and publishes to your configured registry.
 
+### Versioning starts at v0
+
+New projects start their version history in the `0.x` range. The first release is computed from a
+seeded `v0.0.0` baseline: a `feat:` commit yields `0.1.0`, a `fix:` yields `0.0.1`. The project stays
+in `0.x` until you intentionally cut `1.0.0`. Note: the first breaking change (`feat!:` /
+`BREAKING CHANGE:`) below 1.0.0 promotes the project straight to `1.0.0` (a semantic-release behaviour).
+
 ## Customizing The Template For Your Needs
 
 ### For Your Language
@@ -270,6 +277,7 @@ Scoped packages (`@your-org/package-name`) require an npm organization:
 3. Free orgs can publish public scoped packages
 
 To use a scoped name, update `"name"` in your project's `package.json`:
+
 ```json
 {
   "name": "@your-org/my-library"
@@ -288,12 +296,14 @@ To use a scoped name, update `"name"` in your project's `package.json`:
 #### 4. Add `NPM_TOKEN` to GitHub Secrets
 
 **Per-repository** (for a single project):
+
 1. Go to your repository → **Settings** → **Secrets and variables** → **Actions**
 2. Click **New repository secret**
 3. Name: `NPM_TOKEN`, Value: paste your token
 4. Click **Add secret**
 
 **Organization-level** (shared across all repos — recommended):
+
 1. Go to your GitHub organization → **Settings** → **Secrets and variables** → **Actions**
 2. Click **New organization secret**
 3. Name: `NPM_TOKEN`, Value: paste your token
@@ -313,6 +323,7 @@ Classic Automation tokens can be set to no expiry — simpler but grants broader
 npm supports OIDC-based trusted publishing, letting GitHub Actions publish without storing any token. Set it up once per package after the first manual publish.
 
 **Setup (on npmjs.com):**
+
 1. Publish the package at least once manually first (npm requires the package to exist)
 2. Go to the package page → **Settings** → **Publishing access** → **Require two-factor authentication or automation token** → switch to **Allow publishing from CI/CD with a generated token**
 3. Set:
@@ -321,18 +332,20 @@ npm supports OIDC-based trusted publishing, letting GitHub Actions publish witho
    - **Workflow**: `release.yml`
 
 **Update `release.yml`** to use OIDC instead of `NPM_TOKEN`:
+
 ```yaml
 permissions:
   contents: write
   issues: write
   pull-requests: write
-  id-token: write   # ← add this for OIDC
+  id-token: write # ← add this for OIDC
 
 # In the Publish package step, remove NPM_TOKEN from env.
 # pnpm publish will authenticate via the OIDC token automatically.
 ```
 
 Also add `--provenance` to the publish command in `mise.toml`:
+
 ```toml
 [tasks.publish]
 run = "pnpm publish --access public --no-git-checks --provenance"
@@ -343,6 +356,7 @@ Once trusted publishing is configured, remove `NPM_TOKEN` from GitHub secrets �
 #### 7. Verify
 
 After setting the secret (or configuring trusted publishing), push a `feat:` or `fix:` commit to `main`. CI will:
+
 1. Run `mise run upversion` — bumps version in `package.json`, creates git tag
 2. Run `mise run publish` — calls `pnpm publish --access public --no-git-checks`
 
@@ -350,13 +364,13 @@ Check the Actions tab to confirm both steps succeed.
 
 #### Troubleshooting
 
-| Error | Cause | Fix |
-|---|---|---|
-| `403 Forbidden` | Token lacks publish rights or wrong package name | Regenerate token with correct scope; verify `"name"` in `package.json` |
-| `402 Payment Required` | Scoped package requires paid account or org | Use a free org, or publish unscoped |
-| `ENEEDAUTH` | `NPM_TOKEN` secret not set or misspelled | Check GitHub secrets; ensure secret name is exactly `NPM_TOKEN` |
-| `Cannot publish over existing version` | Version already published | Bump version with a new commit; never re-publish the same version |
-| `OIDC token error` | Trusted publishing misconfigured | Verify repo name, owner, and workflow name match exactly on npmjs.com |
+| Error                                  | Cause                                            | Fix                                                                    |
+| -------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| `403 Forbidden`                        | Token lacks publish rights or wrong package name | Regenerate token with correct scope; verify `"name"` in `package.json` |
+| `402 Payment Required`                 | Scoped package requires paid account or org      | Use a free org, or publish unscoped                                    |
+| `ENEEDAUTH`                            | `NPM_TOKEN` secret not set or misspelled         | Check GitHub secrets; ensure secret name is exactly `NPM_TOKEN`        |
+| `Cannot publish over existing version` | Version already published                        | Bump version with a new commit; never re-publish the same version      |
+| `OIDC token error`                     | Trusted publishing misconfigured                 | Verify repo name, owner, and workflow name match exactly on npmjs.com  |
 
 ## Overriding CI/CD
 

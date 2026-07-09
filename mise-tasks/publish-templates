@@ -38,7 +38,7 @@ mise run scaffold -- \
     --project mise-zig-template --template zig --non-interactive
 
 echo "$VERSION" > "$TMP_DIR/mise-zig-template/version.txt"
-sed_inplace "s/.version = \".*\"/.version = \"$VERSION\"/" \
+sed_inplace "s/^\\( *\\)\\.version = \".*\"/\\1.version = \"$VERSION\"/" \
     "$TMP_DIR/mise-zig-template/build.zig.zon"
 
 log_info "Uploading mise-zig-template $VERSION binaries to GitHub release v$VERSION..."
@@ -60,7 +60,12 @@ fs.writeFileSync('$TMP_DIR/mise-pnpm-template/package.json', JSON.stringify(pkg,
 "
 
 log_info "Publishing mise-pnpm-template $VERSION to npm..."
-(cd "$TMP_DIR/mise-pnpm-template" && NODE_AUTH_TOKEN="${NPM_TOKEN}" mise run install && NODE_AUTH_TOKEN="${NPM_TOKEN}" mise run publish)
+# pnpm (10+) only honors auth from a user-level ~/.npmrc, not a project .npmrc.
+[ -n "${NPM_TOKEN:-}" ] || { log_error "NPM_TOKEN is empty"; exit 1; }
+printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > "$HOME/.npmrc"
+# A project-level .npmrc shadows the user ~/.npmrc, so remove the scaffolded one.
+rm -f "$TMP_DIR/mise-pnpm-template/.npmrc"
+(cd "$TMP_DIR/mise-pnpm-template" && mise run install && mise run publish)
 log_success "mise-pnpm-template $VERSION published to npm"
 
 rm -rf "$TMP_DIR"

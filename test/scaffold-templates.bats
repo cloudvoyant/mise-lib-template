@@ -26,7 +26,7 @@ run_scaffold() {
         --non-interactive
     )
     [[ -n "$template" ]] && args+=(--template "$template")
-    bash "$TEMPLATE_SRC/.mise-tasks/scaffold" "${args[@]}"
+    bash "$TEMPLATE_SRC/mise-tasks/scaffold" "${args[@]}"
 }
 
 # ── Agnostic (no template) ────────────────────────────────────────────────────
@@ -128,9 +128,9 @@ run_scaffold() {
     [ ! -f "$DEST/src/sample-code.txt" ]
 }
 
-@test "uv: .mise-tasks/ scripts are executable" {
+@test "uv: mise-tasks/ scripts are executable" {
     run_scaffold "uv"
-    [ -x "$DEST/.mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish-rc" ]
 }
 
 @test "uv: no build.zig created" {
@@ -199,10 +199,10 @@ run_scaffold() {
     [ ! -f "$DEST/src/sample-code.txt" ]
 }
 
-@test "zig: .mise-tasks/ scripts are executable" {
+@test "zig: mise-tasks/ scripts are executable" {
     run_scaffold "zig"
-    [ -x "$DEST/.mise-tasks/publish" ]
-    [ -x "$DEST/.mise-tasks/build-all-platforms" ]
+    [ -x "$DEST/mise-tasks/publish" ]
+    [ -x "$DEST/mise-tasks/build-all-platforms" ]
 }
 
 @test "zig: no pyproject.toml created" {
@@ -279,9 +279,9 @@ run_scaffold() {
     [ ! -f "$DEST/build.zig" ]
 }
 
-@test "pnpm: .mise-tasks/publish-rc is executable" {
+@test "pnpm: mise-tasks/publish-rc is executable" {
     run_scaffold "pnpm"
-    [ -x "$DEST/.mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish-rc" ]
 }
 
 @test "pnpm: ci.yml has publish-rc job calling publish-rc task" {
@@ -343,20 +343,20 @@ run_scaffold() {
     ! grep -q 'publish-templates-rc\|test-template' "$DEST/.github/workflows/ci.yml"
 }
 
-@test "uv: .mise-tasks/publish-rc is executable" {
+@test "uv: mise-tasks/publish-rc is executable" {
     run_scaffold "uv"
-    [ -x "$DEST/.mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish-rc" ]
 }
 
-@test "zig: .mise-tasks/publish-rc is executable" {
+@test "zig: mise-tasks/publish-rc is executable" {
     run_scaffold "zig"
-    [ -x "$DEST/.mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish-rc" ]
 }
 
 # ── Invalid template ──────────────────────────────────────────────────────────
 
 @test "invalid template name exits with error" {
-    run bash "$TEMPLATE_SRC/.mise-tasks/scaffold" \
+    run bash "$TEMPLATE_SRC/mise-tasks/scaffold" \
         --src "$TEMPLATE_SRC" --dest "$DEST" \
         --project "my-lib" --template python --non-interactive
     [ "$status" -ne 0 ]

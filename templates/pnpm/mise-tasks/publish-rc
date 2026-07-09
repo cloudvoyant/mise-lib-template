@@ -5,6 +5,9 @@ source "$(dirname "$0")/utils"
 
 SHORT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
 RC_VERSION="${VERSION}-rc.${SHORT_SHA}" # semver: 2.2.0-rc.abc1234
+# Re-runs reuse the SHA but bump GITHUB_RUN_ATTEMPT; fold it in so a re-run mints a
+# fresh version instead of colliding with the immutable one already on npm.
+[ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ] && RC_VERSION="${RC_VERSION}.${GITHUB_RUN_ATTEMPT}"
 
 log_info "Setting RC version $RC_VERSION in package.json..."
 node -e "

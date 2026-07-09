@@ -4,9 +4,8 @@ Generated from {{TEMPLATE_NAME}} v{{TEMPLATE_VERSION}}.
 
 ## Prerequisites
 
-- [mise](https://mise.jdx.dev/) -- manages Node.js version
-- Node.js LTS is installed automatically by mise via `mise install`
-- pnpm is enabled automatically via `corepack`
+- [mise](https://mise.jdx.dev/) -- manages Node.js and pnpm versions
+- Node.js LTS and pnpm are installed automatically by mise via `mise install`
 
 ## Getting Started
 

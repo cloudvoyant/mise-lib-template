@@ -97,7 +97,7 @@ mv .claude/plan.md .claude/adaptation-complete-$(date +%Y%m%d).md
 
 - Create plan before making changes
 - Test after each significant adaptation
-- Keep language-agnostic logic in `.mise-tasks/`
+- Keep language-agnostic logic in `mise-tasks/`
 - Put language-specific logic in `mise.toml [tasks]`
 - Document why you made specific choices
 - Update README.md to reflect customizations
@@ -106,7 +106,7 @@ mv .claude/plan.md .claude/adaptation-complete-$(date +%Y%m%d).md
 
 ### Always Keep (core framework)
 
-- `.mise-tasks/` - bash automation scripts
+- `mise-tasks/` - bash automation scripts
 - `mise.toml` - environment, tools, and task configuration
 - `.github/workflows/` - CI/CD structure
 - mise pattern (`mise run <task>`)
@@ -123,7 +123,7 @@ mv .claude/plan.md .claude/adaptation-complete-$(date +%Y%m%d).md
 
 - Language-specific linters/formatters
 - Additional CI checks
-- Custom deployment scripts in `.mise-tasks/`
+- Custom deployment scripts in `mise-tasks/`
 - Development tooling in `mise.toml [tools]`
 
 ## Version Management for Different Languages

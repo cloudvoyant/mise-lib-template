@@ -1,7 +1,7 @@
 # test/helpers/contract.bash
 # Load in bats files with: load 'helpers/contract'
 
-# All templates must implement these tasks (either in mise.toml or .mise-tasks/)
+# All templates must implement these tasks (either in mise.toml or mise-tasks/)
 CONTRACT_TASKS=(
     "build"
     "test"
@@ -28,17 +28,17 @@ RUNNABLE_TASKS=(
 )
 
 # Check that a task is declared in the given project directory.
-# Checks [tasks.name] in mise.toml and .mise-tasks/<name> scripts.
+# Checks [tasks.name] in mise.toml and mise-tasks/<name> scripts.
 _task_exists() {
     local project_dir="$1"
     local task="$2"
     grep -q "^\[tasks\.\"${task}\"\]\|^\[tasks\.${task}\]" "$project_dir/mise.toml" 2>/dev/null && return 0
-    [[ -f "$project_dir/.mise-tasks/$task" ]] && return 0
+    [[ -f "$project_dir/mise-tasks/$task" ]] && return 0
     return 1
 }
 
 # Usage: assert_contract_tasks "$scaffolded_project_dir"
-# Verifies all 13 contract tasks are declared in mise.toml or .mise-tasks/.
+# Verifies all 13 contract tasks are declared in mise.toml or mise-tasks/.
 assert_contract_tasks() {
     local project_dir="$1"
     local missing=()

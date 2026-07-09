@@ -75,9 +75,9 @@ The `templates/` directory contains language-specific override and extension fil
 
 Files templates must NOT override (scaffold infrastructure):
 
-- `.mise-tasks/scaffold` — scaffold entrypoint
-- `.mise-tasks/utils` — shared logging/utilities
-- `.mise-tasks/upversion` — versioning logic
+- `mise-tasks/scaffold` — scaffold entrypoint
+- `mise-tasks/utils` — shared logging/utilities
+- `mise-tasks/upversion` — versioning logic
 
 `CLAUDE.md` is always merged, never replaced. Templates must provide `CLAUDE.md.append` instead.
 
@@ -101,7 +101,7 @@ All templates must implement the same mise tasks so base GitHub Actions workflow
 | `version`      | Print current version             |
 | `version-next` | Preview next version              |
 
-`jdx/mise-action@v2` reads `mise.toml` and installs all declared tools (uv, zig, etc.) automatically — no template-specific GitHub Actions files needed.
+`jdx/mise-action@v4` reads `mise.toml` and installs all declared tools (uv, zig, etc.) automatically — no template-specific GitHub Actions files needed.
 
 ### Publishing Pipeline
 

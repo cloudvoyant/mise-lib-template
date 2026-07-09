@@ -7,6 +7,7 @@
 PROJECT = "mise-lib-template"
 # Read version from pyproject.toml [project].version
 VERSION = "{{exec(command='python3 -c \"import tomllib,sys; f=open(\\\"pyproject.toml\\\",\\\"rb\\\"); d=tomllib.load(f); print(d[\\\"project\\\"][\\\"version\\\"])\" 2>/dev/null || echo 0.1.0')}}"
+_.path  = ['{{config_root}}/node_modules/.bin']
 
 [tools]
 python     = "3.12"
@@ -17,8 +18,17 @@ shellcheck = "latest"
 shfmt      = "latest"
 
 [tasks.install]
-description = "Install Python dependencies"
-run         = "uv sync --all-extras"
+description = "Install npm tools and Python dependencies"
+run         = """
+  npm install --no-save --prefix "{{config_root}}" \
+    semantic-release \
+    @semantic-release/changelog \
+    @semantic-release/exec \
+    @semantic-release/git \
+    @semantic-release/github \
+    conventional-changelog-conventionalcommits
+  uv sync --all-extras
+"""
 
 [tasks.build]
 description = "Build Python distribution packages"
@@ -86,8 +96,8 @@ run         = "mise run upversion -- --dry-run"
 
 [tasks.upversion]
 description = "Run semantic-release to version and changelog"
-run         = ".mise-tasks/upversion"
+run         = "mise-tasks/upversion"
 
 [tasks.publish-rc]
-description = "Publish RC package to TestPyPI for pre-release validation"
-run         = ".mise-tasks/publish-rc"
+description = "Publish RC package to PyPI as a pre-release for validation"
+run         = "mise-tasks/publish-rc"

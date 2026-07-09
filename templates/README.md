@@ -4,31 +4,31 @@ Templates are sets of language-specific override and extension files that are la
 
 ## Available Templates
 
-| Name | Language | Registry | Description |
-|------|----------|----------|-------------|
-| `uv` | Python | PyPI | Python library using uv, ruff, pytest |
-| `zig` | Zig | GitHub Releases + GCP | Zig library/binary with cross-platform build |
-| `pnpm` | TypeScript | npm | TypeScript library using pnpm, vitest, ESLint, Prettier |
+| Name   | Language   | Registry              | Description                                             |
+| ------ | ---------- | --------------------- | ------------------------------------------------------- |
+| `uv`   | Python     | PyPI                  | Python library using uv, ruff, pytest                   |
+| `zig`  | Zig        | GitHub Releases + GCP | Zig library/binary with cross-platform build            |
+| `pnpm` | TypeScript | npm                   | TypeScript library using pnpm, vitest, ESLint, Prettier |
 
 ## Task Contract
 
 Every template **must** implement all of the following mise tasks:
 
-| Task | Description |
-|------|-------------|
-| `build` | Compile or prepare the project for local use |
-| `test` | Run the full test suite |
-| `lint` | Run static analysis / linter |
-| `lint-fix` | Run linter with auto-fix |
-| `format` | Format source code in-place |
+| Task           | Description                                        |
+| -------------- | -------------------------------------------------- |
+| `build`        | Compile or prepare the project for local use       |
+| `test`         | Run the full test suite                            |
+| `lint`         | Run static analysis / linter                       |
+| `lint-fix`     | Run linter with auto-fix                           |
+| `format`       | Format source code in-place                        |
 | `format-check` | Check formatting without modifying files (CI mode) |
-| `publish` | Publish package to the appropriate registry |
-| `docker-build` | Build the project Docker image |
-| `docker-run` | Run the project in Docker |
-| `docker-test` | Run tests in Docker |
-| `upversion` | Bump version (delegates to `.mise-tasks/upversion`) |
-| `version` | Print current version |
-| `version-next` | Compute next semantic version from commits |
+| `publish`      | Publish package to the appropriate registry        |
+| `docker-build` | Build the project Docker image                     |
+| `docker-run`   | Run the project in Docker                          |
+| `docker-test`  | Run tests in Docker                                |
+| `upversion`    | Bump version (delegates to `mise-tasks/upversion`) |
+| `version`      | Print current version                              |
+| `version-next` | Compute next semantic version from commits         |
 
 The base `mise.toml` provides stub implementations of all these tasks. Templates override them with language-specific implementations.
 
@@ -37,7 +37,7 @@ The base `mise.toml` provides stub implementations of all these tasks. Templates
 Templates can provide any files their language requires. Non-exhaustive list:
 
 - `mise.toml` — task overrides merged over the base
-- `.mise-tasks/*` — executable scripts implementing contract tasks
+- `mise-tasks/*` — executable scripts implementing contract tasks
 - `src/` — language-specific starter source code
 - `CLAUDE.md.append` — appended to root `CLAUDE.md` during scaffold (see below)
 - `docs/development-guide.template.md` — language-specific development guide (processed to `.md` during scaffold)
@@ -51,9 +51,9 @@ Templates can provide any files their language requires. Non-exhaustive list:
 
 The following files are scaffold infrastructure. Do not override them unless there is a compelling language-specific reason:
 
-- `.mise-tasks/scaffold` — scaffold entrypoint
-- `.mise-tasks/utils` — shared logging and utility functions
-- `.mise-tasks/upversion` — version bumping logic
+- `mise-tasks/scaffold` — scaffold entrypoint
+- `mise-tasks/utils` — shared logging and utility functions
+- `mise-tasks/upversion` — version bumping logic
 
 ## CLAUDE.md Handling
 
@@ -64,7 +64,7 @@ The following files are scaffold infrastructure. Do not override them unless the
 ## Adding a New Template
 
 1. Create `templates/<name>/` directory
-2. Implement all required tasks from the contract table above (in `mise.toml` and/or `.mise-tasks/`)
+2. Implement all required tasks from the contract table above (in `mise.toml` and/or `mise-tasks/`)
 3. Add language-specific files as needed
 4. Create `CLAUDE.md.append` with language conventions (no bats/test-template context)
 5. Run `mise run list-templates` to verify the new template is discovered

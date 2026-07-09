@@ -4,8 +4,19 @@ set -euo pipefail
 source "$(dirname "$0")/utils"
 
 SHORT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
+# PEP 440 requires the rc suffix to be a number (and PyPI rejects +local segments),
+# so the PyPI version uses the monotonic CI run number; the sha lives in the
+# GitHub pre-release tag/notes for traceability. npm/zig keep the sha (valid semver).
+RC_NUM="${GITHUB_RUN_NUMBER:-0}"
 RC_TAG="v${VERSION}-rc.${SHORT_SHA}"           # semver: v2.2.0-rc.abc1234
-RC_VERSION_PEP="${VERSION}rc${SHORT_SHA}"       # PEP 440: 2.2.0rcabc1234
+# Re-runs reuse GITHUB_RUN_NUMBER and the SHA but bump GITHUB_RUN_ATTEMPT; fold it in
+# so a re-run mints a fresh version instead of colliding with the immutable one already
+# published to PyPI/npm (neither can be overwritten).
+if [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ]; then
+    RC_NUM="${RC_NUM}.post${GITHUB_RUN_ATTEMPT}"
+    RC_TAG="${RC_TAG}.${GITHUB_RUN_ATTEMPT}"
+fi
+RC_VERSION_PEP="${VERSION}rc${RC_NUM}"          # PEP 440: 2.2.0rc42 (or 2.2.0rc42.post2)
 
 # Capture GH_REPO before changing directories
 BASE_GH_REPO="${GITHUB_REPOSITORY:-$(git remote get-url origin 2>/dev/null \
@@ -20,7 +31,9 @@ log_info "Publishing RC template packages at $RC_TAG..."
 # --- Clean up previous RC pre-releases for this base version ---
 log_info "Cleaning up previous RC pre-releases for v${VERSION}-rc.*..."
 while IFS= read -r tag; do
-    [[ "$tag" == "$RC_TAG" ]] && continue
+    # Delete all prior RC pre-releases for this base version, INCLUDING the current
+    # tag, so a re-run of the same commit can recreate it cleanly (avoids HTTP 422
+    # "tag_name already exists").
     gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
 done < <(gh release list --json tagName,isPrerelease \
     --jq '.[] | select(.isPrerelease) | .tagName' \
@@ -35,8 +48,9 @@ gh release create "$RC_TAG" \
     --notes "Pre-release build from commit $SHORT_SHA. Not for production use." \
     --prerelease
 
-# --- mise-uv-template RC → TestPyPI ---
+# --- mise-uv-template RC → PyPI (pre-release) ---
 log_info "Scaffolding mise-uv-template RC..."
+mkdir -p "$TMP_DIR/mise-uv-template"
 mise run scaffold -- \
     --src . --dest "$TMP_DIR/mise-uv-template" \
     --project mise-uv-template --template uv --non-interactive
@@ -44,20 +58,20 @@ mise run scaffold -- \
 sed_inplace "s/^version = .*/version = \"$RC_VERSION_PEP\"/" \
     "$TMP_DIR/mise-uv-template/pyproject.toml"
 
-log_info "Publishing mise-uv-template $RC_VERSION_PEP to TestPyPI..."
-(cd "$TMP_DIR/mise-uv-template" && \
-    UV_PUBLISH_URL="https://upload.test.pypi.org/legacy/" mise run publish)
-log_success "mise-uv-template $RC_VERSION_PEP published to TestPyPI"
+log_info "Publishing mise-uv-template $RC_VERSION_PEP to PyPI (pre-release)..."
+(cd "$TMP_DIR/mise-uv-template" && mise run publish)
+log_success "mise-uv-template $RC_VERSION_PEP published to PyPI"
 
 # --- mise-zig-template RC → assets on GitHub pre-release ---
 # Pre-release already created above; zig publish uploads to existing release.
 log_info "Scaffolding mise-zig-template RC..."
+mkdir -p "$TMP_DIR/mise-zig-template"
 mise run scaffold -- \
     --src . --dest "$TMP_DIR/mise-zig-template" \
     --project mise-zig-template --template zig --non-interactive
 
 echo "${RC_TAG#v}" > "$TMP_DIR/mise-zig-template/version.txt"
-sed_inplace "s/.version = \".*\"/.version = \"${RC_TAG#v}\"/" \
+sed_inplace "s/^\\( *\\)\\.version = \".*\"/\\1.version = \"${RC_TAG#v}\"/" \
     "$TMP_DIR/mise-zig-template/build.zig.zon"
 
 log_info "Uploading mise-zig-template $RC_TAG binaries to GitHub pre-release..."
@@ -79,8 +93,16 @@ fs.writeFileSync('$TMP_DIR/mise-pnpm-template/package.json', JSON.stringify(pkg,
 "
 
 log_info "Publishing mise-pnpm-template $RC_TAG to npm with tag 'next'..."
-echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$TMP_DIR/mise-pnpm-template/.npmrc"
-(cd "$TMP_DIR/mise-pnpm-template" && corepack enable && mise run install && \
+# pnpm (10+) ignores auth tokens in a project-committed .npmrc and only honors a
+# user-level ~/.npmrc, so write the token there. Use mise's pinned pnpm (10) — no
+# `corepack enable` (that pulls pnpm 11, which ignores package.json
+# onlyBuiltDependencies and fails on esbuild's build script).
+[ -n "${NPM_TOKEN:-}" ] || { log_error "NPM_TOKEN is empty"; exit 1; }
+printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > "$HOME/.npmrc"
+# The scaffolded project ships its own .npmrc (_authToken=${NODE_AUTH_TOKEN}); a
+# project-level .npmrc shadows the user ~/.npmrc, so remove it to use our auth.
+rm -f "$TMP_DIR/mise-pnpm-template/.npmrc"
+(cd "$TMP_DIR/mise-pnpm-template" && mise run install && \
     pnpm publish --access public --no-git-checks --tag next)
 log_success "mise-pnpm-template $RC_TAG published to npm (tag: next)"
 

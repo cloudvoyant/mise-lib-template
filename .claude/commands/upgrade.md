@@ -14,22 +14,22 @@ This workflow helps you systematically upgrade your project to the latest templa
 
 If your project is on **1.x** (has `justfile`, `.envrc`, `scripts/`), you are migrating to a fundamentally different toolchain. Here is a summary of what changed:
 
-| 1.x                   | 2.x                                     |
-| --------------------- | --------------------------------------- |
-| `justfile`            | `mise.toml` `[tasks]` or `.mise-tasks/` |
-| `.envrc` (direnv)     | `mise.toml` `[env]`                     |
-| `scripts/` bash files | `.mise-tasks/` task scripts             |
-| `just <task>`         | `mise run <task>`                       |
-| `direnv allow`        | not needed                              |
-| `scripts/utils.sh`    | `.mise-tasks/utils`                     |
-| `scripts/setup.sh`    | removed (use `mise install`)            |
-| `[tools]` in justfile | `mise.toml` `[tools]`                   |
+| 1.x                   | 2.x                                    |
+| --------------------- | -------------------------------------- |
+| `justfile`            | `mise.toml` `[tasks]` or `mise-tasks/` |
+| `.envrc` (direnv)     | `mise.toml` `[env]`                    |
+| `scripts/` bash files | `mise-tasks/` task scripts             |
+| `just <task>`         | `mise run <task>`                      |
+| `direnv allow`        | not needed                             |
+| `scripts/utils.sh`    | `mise-tasks/utils`                     |
+| `scripts/setup.sh`    | removed (use `mise install`)           |
+| `[tools]` in justfile | `mise.toml` `[tools]`                  |
 
 ### 1.x → 2.x Migration Steps
 
 1. **Create `mise.toml`** — move env vars from `.envrc` to `[env]`, tools from scripts to `[tools]`, and recipes from `justfile` to `[tasks]`
-2. **Migrate scripts** — move `scripts/scaffold.sh`, `upversion.sh`, `utils.sh` to `.mise-tasks/scaffold`, `upversion`, `utils` (remove the `.sh` extension; mise runs them directly); delete `toggle-files.sh` (replaced by static `.zed/settings.json`)
-3. **Update CI workflows** — replace manual tool installs with `jdx/mise-action@v2`; add `mise run install` step before running tasks
+2. **Migrate scripts** — move `scripts/scaffold.sh`, `upversion.sh`, `utils.sh` to `mise-tasks/scaffold`, `upversion`, `utils` (remove the `.sh` extension; mise runs them directly); delete `toggle-files.sh` (replaced by static `.zed/settings.json`)
+3. **Update CI workflows** — replace manual tool installs with `jdx/mise-action@v4`; add `mise run install` step before running tasks
 4. **Replace `just` calls** — update any `just <task>` references in docs, CI, and scripts to `mise run <task>`
 5. **Remove old files** — delete `justfile`, `.envrc`, `.envrc.template`, `scripts/setup.sh`
 6. **Install dependencies** — run `mise install` to verify all tools install correctly
@@ -84,9 +84,9 @@ Migrate from mise-lib-template v<current> to v<target>
 ### Core Configuration
 
 - [ ] mise.toml - Check for task, tool, and env changes
-- [ ] .mise-tasks/scaffold - Check for scaffolding improvements
-- [ ] .mise-tasks/upversion - Check for versioning updates
-- [ ] .mise-tasks/utils - Check for utility function updates
+- [ ] mise-tasks/scaffold - Check for scaffolding improvements
+- [ ] mise-tasks/upversion - Check for versioning updates
+- [ ] mise-tasks/utils - Check for utility function updates
 
 ### CI/CD Workflows
 
@@ -159,14 +159,14 @@ For each task in the migration plan:
 
 ```bash
 diff mise.toml .tmp/template-upstream-main/mise.toml
-diff -r .mise-tasks/ .tmp/template-upstream-main/.mise-tasks/
+diff -r mise-tasks/ .tmp/template-upstream-main/mise-tasks/
 ```
 
 #### b. Review Changes
 
 Determine if changes apply to this project:
 
-- **Infrastructure changes** (workflows, `.mise-tasks/`): Usually apply
+- **Infrastructure changes** (workflows, `mise-tasks/`): Usually apply
 - **Task changes** (`mise.toml [tasks]`): May need customization to preserve project-specific logic
 - **Configuration** (`.gitignore`, `.releaserc.json`): Review carefully
 - **Claude/IDE configs**: Apply improvements, preserve project-specific settings
@@ -176,7 +176,7 @@ Determine if changes apply to this project:
 Apply relevant changes while preserving project-specific customizations:
 
 - Merge task updates into `mise.toml`
-- Copy improved `.mise-tasks/` scripts
+- Copy improved `mise-tasks/` scripts
 - Merge workflow updates
 - Preserve project-specific logic
 
@@ -207,7 +207,7 @@ mise run test
 mise run build
 
 # Verify all expected files exist
-ls -la .mise-tasks/ .github/workflows/
+ls -la mise-tasks/ .github/workflows/
 ```
 
 ### 7. Cleanup
