@@ -34,6 +34,10 @@ setup() {
         "$ORIGINAL_DIR/" "$REPO_DIR/"
     cd "$REPO_DIR"
     git init -q
+    # Disable background gc/maintenance so no async git process keeps .git busy
+    # during teardown's rm -rf (avoids a flaky "Directory not empty" race on CI).
+    git config gc.auto 0
+    git config maintenance.auto false
     git config user.email "test@test.com"
     git config user.name "Test"
     git add -A
@@ -42,9 +46,11 @@ setup() {
 }
 
 teardown() {
-    # Clean up test directory
+    # Clean up test directory. Never let a cleanup race fail the test: the temp
+    # dir is disposable and the CI runner reclaims it regardless.
     cd "$ORIGINAL_DIR"
-    rm -rf "$TEST_DIR"
+    chmod -R u+w "$TEST_DIR" 2>/dev/null || true
+    rm -rf "$TEST_DIR" 2>/dev/null || true
 }
 
 @test "git archive command works" {

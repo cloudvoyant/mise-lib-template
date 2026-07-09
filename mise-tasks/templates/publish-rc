@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 #MISE hide=true
+#MISE description="Publish RC versions of template packages (CI pre-release validation)"
 set -euo pipefail
-source "$(dirname "$0")/utils"
+cd "${MISE_PROJECT_ROOT:-$PWD}"
+source "${MISE_PROJECT_ROOT:-$PWD}/mise-tasks/utils"
 
 SHORT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
-# PEP 440 requires the rc suffix to be a number (and PyPI rejects +local segments),
-# so the PyPI version uses the monotonic CI run number; the sha lives in the
-# GitHub pre-release tag/notes for traceability. npm/zig keep the sha (valid semver).
-RC_NUM="${GITHUB_RUN_NUMBER:-0}"
-RC_TAG="v${VERSION}-rc.${SHORT_SHA}"           # semver: v2.2.0-rc.abc1234
-# Re-runs reuse GITHUB_RUN_NUMBER and the SHA but bump GITHUB_RUN_ATTEMPT; fold it in
-# so a re-run mints a fresh version instead of colliding with the immutable one already
-# published to PyPI/npm (neither can be overwritten).
+TIMESTAMP=$(date -u +%Y%m%d%H%M)
+# Human-readable UTC timestamp (yyyymmddhhmm) prefixes the sha so RC versions are
+# per-commit-unique and time-sortable. PEP 440 (PyPI) can't carry the sha, so the
+# timestamp doubles as the numeric rc there; npm/zig keep timestamp.sha in the tag.
+RC_NUM="${TIMESTAMP}"
+RC_TAG="v${VERSION}-rc.${TIMESTAMP}.${SHORT_SHA}"   # semver: v2.2.0-rc.202607091142.abc1234
+# Re-runs within the same minute would collide; bump GITHUB_RUN_ATTEMPT into a suffix.
 if [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ]; then
     RC_NUM="${RC_NUM}.post${GITHUB_RUN_ATTEMPT}"
     RC_TAG="${RC_TAG}.${GITHUB_RUN_ATTEMPT}"
 fi
-RC_VERSION_PEP="${VERSION}rc${RC_NUM}"          # PEP 440: 2.2.0rc42 (or 2.2.0rc42.post2)
+RC_VERSION_PEP="${VERSION}rc${RC_NUM}"          # PEP 440: 2.2.0rc202607091142 (or .post2)
 
 # Capture GH_REPO before changing directories
 BASE_GH_REPO="${GITHUB_REPOSITORY:-$(git remote get-url origin 2>/dev/null \

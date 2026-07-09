@@ -6,16 +6,16 @@ CONTRACT_TASKS=(
     "build"
     "test"
     "lint"
-    "lint-fix"
+    "lint:fix"
     "format"
-    "format-check"
+    "format:check"
     "publish"
-    "docker-build"
-    "docker-run"
-    "docker-test"
+    "docker:build"
+    "docker:run"
+    "docker:test"
     "upversion"
     "version"
-    "version-next"
+    "version:next"
 )
 
 # Tasks safe to actually execute in a scaffolded project (no external deps, no side effects).
@@ -24,16 +24,19 @@ RUNNABLE_TASKS=(
     "version"
     "build"
     "test"
-    "format-check"
+    "format:check"
 )
 
 # Check that a task is declared in the given project directory.
-# Checks [tasks.name] in mise.toml and mise-tasks/<name> scripts.
+# Maps namespaced ids (docker:build) to nested files (mise-tasks/docker/build),
+# accepts a _default file for a bare namespace, and keeps a legacy inline fallback.
 _task_exists() {
     local project_dir="$1"
     local task="$2"
+    local rel="${task//://}"
+    [[ -f "$project_dir/mise-tasks/$rel" ]] && return 0
+    [[ -f "$project_dir/mise-tasks/$rel/_default" ]] && return 0
     grep -q "^\[tasks\.\"${task}\"\]\|^\[tasks\.${task}\]" "$project_dir/mise.toml" 2>/dev/null && return 0
-    [[ -f "$project_dir/mise-tasks/$task" ]] && return 0
     return 1
 }
 
@@ -60,7 +63,7 @@ assert_contract_tasks() {
 # Verifies docker-build, docker-run, docker-test are declared.
 assert_docker_tasks() {
     local project_dir="$1"
-    local docker_tasks=("docker-build" "docker-run" "docker-test")
+    local docker_tasks=("docker:build" "docker:run" "docker:test")
     local missing=()
 
     for task in "${docker_tasks[@]}"; do
@@ -94,6 +97,20 @@ assert_tasks_runnable() {
 
     if [[ ${#failed[@]} -gt 0 ]]; then
         echo "FAIL: Tasks failed to run in $project_dir: ${failed[*]}" >&2
+        return 1
+    fi
+    return 0
+}
+
+# Usage: assert_tasks_executable "$scaffolded_project_dir"
+# Every task file, including nested namespaced ones, must be executable.
+assert_tasks_executable() {
+    local project_dir="$1"
+    local nonexec
+    nonexec=$(find "$project_dir/mise-tasks" -type f ! -perm -u+x 2>/dev/null)
+    if [[ -n "$nonexec" ]]; then
+        echo "FAIL: non-executable task files in $project_dir:" >&2
+        echo "$nonexec" >&2
         return 1
     fi
     return 0

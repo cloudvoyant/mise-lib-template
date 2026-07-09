@@ -79,24 +79,24 @@ run_scaffold() {
 
 # ── docker-build task has a run command ───────────────────────────────────────
 
-@test "agnostic: docker-build task has a run command" {
+@test "agnostic: docker:build defined as a file task" {
     run_scaffold ""
-    grep -A2 '^\[tasks\.docker-build\]' "$DEST/mise.toml" | grep -q 'run'
+    [ -f "$DEST/mise-tasks/docker/build" ]
 }
 
-@test "uv: docker-build task has a run command" {
+@test "uv: docker:build defined as a file task" {
     run_scaffold "uv"
-    grep -A2 '^\[tasks\.docker-build\]' "$DEST/mise.toml" | grep -q 'run'
+    [ -f "$DEST/mise-tasks/docker/build" ]
 }
 
-@test "zig: docker-build task has a run command" {
+@test "zig: docker:build defined as a file task" {
     run_scaffold "zig"
-    grep -A2 '^\[tasks\.docker-build\]' "$DEST/mise.toml" | grep -q 'run'
+    [ -f "$DEST/mise-tasks/docker/build" ]
 }
 
-@test "pnpm: docker-build task has a run command" {
+@test "pnpm: docker:build defined as a file task" {
     run_scaffold "pnpm"
-    grep -A2 '^\[tasks\.docker-build\]' "$DEST/mise.toml" | grep -q 'run'
+    [ -f "$DEST/mise-tasks/docker/build" ]
 }
 
 # ── Dockerfile ships with scaffold and uses unified mise pattern ──────────────

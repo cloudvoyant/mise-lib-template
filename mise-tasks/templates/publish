@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #MISE description="Publish template packages to their respective registries"
 set -euo pipefail
-source "$(dirname "$0")/utils"
+cd "${MISE_PROJECT_ROOT:-$PWD}"
+source "${MISE_PROJECT_ROOT:-$PWD}/mise-tasks/utils"
 
 TMP_DIR=".tmp/publish-templates"
 rm -rf "$TMP_DIR"

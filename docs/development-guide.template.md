@@ -85,7 +85,7 @@ mise run clean     # Clean build artifacts
    ```bash
    mise run test
    mise run lint
-   mise run format-check
+   mise run format:check
    ```
 
 4. Commit using conventional commits:
@@ -131,23 +131,10 @@ You can alternately use mise to install tools in a global scope, or use your pre
 You can optionally skip any dev-tool setup/etc. by running everything through docker:
 
 ```bash
-mise run docker-build
-mise run docker-run
-mise run docker-test
+mise run docker:build
+mise run docker:run
+mise run docker:test
 ```
-
-### Using Dev Containers
-
-Using dev containers will simply bypass the need to install mise, etc. on your machine. When you open the project in a dev container, you can simply start running mise tasks.
-
-If using VS Code:
-
-1. Install "Dev Containers" extension
-2. Open project in VS Code
-3. Click "Reopen in Container" when prompted
-4. Develop inside container with all tools pre-installed
-
-Other IDEs which support dev-containers will offer similar steps.
 
 ## AI-Assisted Development
 

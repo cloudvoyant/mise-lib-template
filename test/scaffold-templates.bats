@@ -40,7 +40,7 @@ run_scaffold() {
     # The agnostic base provides the infrastructure tasks; language tasks (lint, format, etc.)
     # are intentionally left as stubs for the user to fill in. Test only guaranteed tasks.
     run_scaffold ""
-    local base_tasks=("build" "test" "docker-build" "docker-run" "docker-test" "upversion" "version" "version-next")
+    local base_tasks=("build" "test" "docker:build" "docker:run" "docker:test" "upversion" "version" "version:next")
     for task in "${base_tasks[@]}"; do
         _task_exists "$DEST" "$task" || { echo "FAIL: base task '$task' missing"; false; }
     done
@@ -130,7 +130,7 @@ run_scaffold() {
 
 @test "uv: mise-tasks/ scripts are executable" {
     run_scaffold "uv"
-    [ -x "$DEST/mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish/rc" ]
 }
 
 @test "uv: no build.zig created" {
@@ -201,8 +201,8 @@ run_scaffold() {
 
 @test "zig: mise-tasks/ scripts are executable" {
     run_scaffold "zig"
-    [ -x "$DEST/mise-tasks/publish" ]
-    [ -x "$DEST/mise-tasks/build-all-platforms" ]
+    [ -x "$DEST/mise-tasks/publish/_default" ]
+    [ -x "$DEST/mise-tasks/build/all-platforms" ]
 }
 
 @test "zig: no pyproject.toml created" {
@@ -281,17 +281,17 @@ run_scaffold() {
 
 @test "pnpm: mise-tasks/publish-rc is executable" {
     run_scaffold "pnpm"
-    [ -x "$DEST/mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish/rc" ]
 }
 
 @test "pnpm: ci.yml has publish-rc job calling publish-rc task" {
     run_scaffold "pnpm"
-    grep -q 'mise run publish-rc' "$DEST/.github/workflows/ci.yml"
+    grep -q 'mise run publish:rc' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "pnpm: ci.yml has no template-only tasks" {
     run_scaffold "pnpm"
-    ! grep -q 'publish-templates-rc\|test-template' "$DEST/.github/workflows/ci.yml"
+    ! grep -q 'templates:' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "pnpm: scaffolded project passes lint (ESLint + tsc)" {
@@ -303,54 +303,54 @@ run_scaffold() {
 @test "pnpm: scaffolded project passes format-check" {
     run_scaffold "pnpm"
     mise trust --yes "$DEST" >/dev/null 2>&1
-    mise run --cd "$DEST" format-check
+    mise run --cd "$DEST" format:check
 }
 
 # ── CI workflow cleanup ───────────────────────────────────────────────────────
 
 @test "agnostic: ci.yml has publish-rc job calling publish-rc task" {
     run_scaffold ""
-    grep -q 'mise run publish-rc' "$DEST/.github/workflows/ci.yml"
+    grep -q 'mise run publish:rc' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "agnostic: ci.yml has no template-only tasks" {
     run_scaffold ""
-    ! grep -q 'publish-templates-rc\|test-template' "$DEST/.github/workflows/ci.yml"
+    ! grep -q 'templates:' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "agnostic: release.yml has no template-only tasks" {
     run_scaffold ""
-    ! grep -q 'publish-templates\|test-template' "$DEST/.github/workflows/release.yml"
+    ! grep -q 'templates:' "$DEST/.github/workflows/release.yml"
 }
 
 @test "uv: ci.yml has publish-rc job calling publish-rc task" {
     run_scaffold "uv"
-    grep -q 'mise run publish-rc' "$DEST/.github/workflows/ci.yml"
+    grep -q 'mise run publish:rc' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "uv: ci.yml has no template-only tasks" {
     run_scaffold "uv"
-    ! grep -q 'publish-templates-rc\|test-template' "$DEST/.github/workflows/ci.yml"
+    ! grep -q 'templates:' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "zig: ci.yml has publish-rc job calling publish-rc task" {
     run_scaffold "zig"
-    grep -q 'mise run publish-rc' "$DEST/.github/workflows/ci.yml"
+    grep -q 'mise run publish:rc' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "zig: ci.yml has no template-only tasks" {
     run_scaffold "zig"
-    ! grep -q 'publish-templates-rc\|test-template' "$DEST/.github/workflows/ci.yml"
+    ! grep -q 'templates:' "$DEST/.github/workflows/ci.yml"
 }
 
 @test "uv: mise-tasks/publish-rc is executable" {
     run_scaffold "uv"
-    [ -x "$DEST/mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish/rc" ]
 }
 
 @test "zig: mise-tasks/publish-rc is executable" {
     run_scaffold "zig"
-    [ -x "$DEST/mise-tasks/publish-rc" ]
+    [ -x "$DEST/mise-tasks/publish/rc" ]
 }
 
 # ── Invalid template ──────────────────────────────────────────────────────────
@@ -361,4 +361,43 @@ run_scaffold() {
         --project "my-lib" --template python --non-interactive
     [ "$status" -ne 0 ]
     echo "$output" | grep -q -i "unknown template\|valid"
+}
+
+# ── Override verification ──────────────────────────────────────────────────────
+
+@test "pnpm: nested task files are the template versions" {
+    run_scaffold "pnpm"
+    grep -q 'pnpm run build' "$DEST/mise-tasks/build/_default"
+    grep -q 'pnpm publish'   "$DEST/mise-tasks/publish/_default"
+}
+
+@test "uv: nested task files are the template versions" {
+    run_scaffold "uv"
+    grep -q 'uv build' "$DEST/mise-tasks/build/_default"
+}
+
+@test "zig: nested override replaced base (docker + publish)" {
+    run_scaffold "zig"
+    grep -q 'docker build -t'     "$DEST/mise-tasks/docker/build"
+    grep -q 'build:all-platforms' "$DEST/mise-tasks/publish/_default"
+}
+
+@test "agnostic: all task files executable (incl. nested)" {
+    run_scaffold ""
+    assert_tasks_executable "$DEST"
+}
+
+@test "uv: all task files executable (incl. nested)" {
+    run_scaffold "uv"
+    assert_tasks_executable "$DEST"
+}
+
+@test "zig: all task files executable (incl. nested)" {
+    run_scaffold "zig"
+    assert_tasks_executable "$DEST"
+}
+
+@test "pnpm: all task files executable (incl. nested)" {
+    run_scaffold "pnpm"
+    assert_tasks_executable "$DEST"
 }

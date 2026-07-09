@@ -19,7 +19,7 @@ mise run test
 
 # Check code quality
 mise run lint
-mise run format-check
+mise run format:check
 ```
 
 ## Project Structure
@@ -34,9 +34,9 @@ mise.toml                   # Task runner and tool versions
 ## Development Workflow
 
 1. **Add a feature**: write code in `src/{{PROJECT_NAME}}/`, add tests in `tests/`
-2. **Check quality**: `mise run lint && mise run format-check`
+2. **Check quality**: `mise run lint && mise run format:check`
 3. **Run tests**: `mise run test`
-4. **Fix issues**: `mise run lint-fix && mise run format`
+4. **Fix issues**: `mise run lint:fix && mise run format`
 
 ## Adding Dependencies
 

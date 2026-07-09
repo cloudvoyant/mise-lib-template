@@ -219,9 +219,9 @@ apply_template() {
         --exclude='node_modules' \
         "$template_src/" "$dest/"
 
-    # Ensure mise-tasks/ scripts are executable
+    # Ensure mise-tasks/ scripts are executable (recurse into namespaced dirs)
     if [[ -d "$dest/mise-tasks" ]]; then
-        chmod +x "$dest/mise-tasks/"* 2>/dev/null || true
+        find "$dest/mise-tasks" -type f -exec chmod +x {} + 2>/dev/null || true
     fi
 
     # Re-run name substitutions on newly overlaid files
@@ -441,6 +441,11 @@ rsync -a \
 
 log_success "Platform files copied"
 
+# Ensure all task files are executable, including nested namespaced dirs
+if [[ -d "$DEST_DIR/mise-tasks" ]]; then
+    find "$DEST_DIR/mise-tasks" -type f -exec chmod +x {} + 2>/dev/null || true
+fi
+
 # REPLACE TEMPLATE NAME WITH PROJECT NAME IN ALL VARIANTS ---------------------
 log_info "Replacing template name with project name"
 
@@ -547,17 +552,15 @@ fi
 # CLEAN UP TEMPLATE FILES ------------------------------------------------------
 log_info "Cleaning template files"
 
-# Remove template section from mise.toml
-MISE_TOML="$DEST_DIR/mise.toml"
-if [ -f "$MISE_TOML" ]; then
-    # Remove everything from "# TEMPLATE" comment to end of file
-    sed_inplace '/^# TEMPLATE$/,$ {/^# TEMPLATE$/d; d;}' "$MISE_TOML"
-fi
-
-# Remove template-only mise-tasks scripts — not needed in scaffolded projects
+# Remove template-only mise-tasks scripts — not needed in scaffolded projects.
+# Also remove the scaffold entrypoint from the scaffolded project — it is a one-shot
+# tool. For a normal scaffold, $DEST_DIR is a different tree from the running $0, so
+# this just removes the output copy. In the in-place flow (src==dest) this is the
+# running script itself; bash keeps its open fd so execution still finishes, and on
+# error the backup restore brings it back.
 rm -f "$DEST_DIR/mise-tasks/template-utils"
-rm -f "$DEST_DIR/mise-tasks/publish-templates"
-rm -f "$DEST_DIR/mise-tasks/publish-templates-rc"
+rm -rf "$DEST_DIR/mise-tasks/templates"
+rm -f "$DEST_DIR/mise-tasks/scaffold"
 log_info "Removed template-only scripts from scaffolded project"
 
 # Remove template development directories — not needed in scaffolded projects.
@@ -573,8 +576,8 @@ if [ -f "$CI_YML" ]; then
     # Remove "Run template tests" step (test-template) and collapse extra blank line
     awk '/- name: Run template tests/{skip=2; next} skip>0{skip--; next} {print}' "$CI_YML" | \
         awk 'prev=="" && /^$/{next} {prev=$0; print}' > "$CI_YML.tmp" && mv "$CI_YML.tmp" "$CI_YML"
-    # Rewrite publish-rc job to call project's own publish-rc task (not template-specific)
-    sed_inplace 's/mise run publish-templates-rc/mise run publish-rc/' "$CI_YML"
+    # Rewrite publish-rc job to call project's own publish:rc task (not template-specific)
+    sed_inplace 's/mise run templates:publish-rc/mise run publish:rc/' "$CI_YML"
     sed_inplace 's/Publish RC template packages/Publish RC package/' "$CI_YML"
 fi
 

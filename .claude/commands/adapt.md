@@ -76,7 +76,7 @@ For each adaptation:
 ```bash
 mise run test
 mise run build
-mise run lint && mise run format-check && mise run test
+mise run lint && mise run format:check && mise run test
 ```
 
 ### 5. Update Documentation

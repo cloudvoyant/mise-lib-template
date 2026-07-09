@@ -1,6 +1,7 @@
 # =============================================================================
 # mise.toml - zig template
-# Overlays the base mise.toml during scaffold.
+# Overlays the base mise.toml during scaffold. Tasks are file tasks under
+# mise-tasks/ (this template overrides only the tasks that differ from base).
 # =============================================================================
 
 [env]
@@ -15,107 +16,8 @@ bats       = "latest"
 shellcheck = "latest"
 shfmt      = "latest"
 
-[tasks.install]
-description = "Install npm tools and fetch Zig build dependencies"
-run         = """
-  npm install --no-save --prefix "{{config_root}}" \
-    semantic-release \
-    @semantic-release/changelog \
-    @semantic-release/exec \
-    @semantic-release/git \
-    @semantic-release/github \
-    conventional-changelog-conventionalcommits
-  zig build --fetch 2>/dev/null || true
-"""
+[task_config]
+includes = ["mise-tasks"]
 
-[tasks.build]
-description = "Build Zig project (debug)"
-run         = """
-  if out=$(zig build 2>&1); then
-    echo "Build successful → zig-out/bin/${PROJECT}"
-  else
-    fp=$(printf '%s\\n' "$out" | grep -oE '(use this|suggested) value: 0x[0-9a-f]+' | grep -oE '0x[0-9a-f]+' | head -1)
-    if [ -n "$fp" ]; then
-      if grep -q 'fingerprint' build.zig.zon; then
-        if sed --version 2>/dev/null | grep -q GNU; then
-          sed -i "s/.fingerprint = 0x[0-9a-f]*/.fingerprint = $fp/" build.zig.zon
-        else
-          sed -i '' "s/.fingerprint = 0x[0-9a-f]*/.fingerprint = $fp/" build.zig.zon
-        fi
-      else
-        awk -v fp="$fp" '/paths[[:space:]]*=/{print "    .fingerprint = " fp ","} {print}' build.zig.zon > build.zig.zon.tmp && mv build.zig.zon.tmp build.zig.zon
-      fi
-      zig build && echo "Build successful → zig-out/bin/${PROJECT}"
-    else
-      printf '%s\\n' "$out" >&2; exit 1
-    fi
-  fi
-"""
-
-[tasks.build-prod]
-description = "Build optimized release binary"
-run         = "zig build -Doptimize=ReleaseFast"
-
-[tasks.run]
-description = "Build and run the project"
-run         = "zig build run"
-
-[tasks.test]
-description = "Run Zig test suite"
-run         = "zig build test"
-
-[tasks.format]
-description = "Format Zig source files in-place"
-run         = "zig fmt src/"
-
-[tasks.format-check]
-description = "Check Zig formatting without modifying files"
-run         = "zig fmt --check src/"
-
-[tasks.lint]
-description = "Lint mise-tasks/ shell scripts with shellcheck"
-run         = "shellcheck mise-tasks/*"
-
-[tasks.lint-fix]
-description = "Auto-fix mise-tasks/ shell script formatting with shfmt"
-run         = "shfmt -w mise-tasks/*"
-
-[tasks.clean]
-description = "Remove Zig build artifacts"
-run         = "rm -rf zig-out/ zig-cache/ .zig-cache/"
-
-[tasks.build-all-platforms]
-description = "Cross-compile for Linux/macOS/Windows x86_64+aarch64"
-run         = "mise-tasks/build-all-platforms"
-
-[tasks.publish]
-description = "Create GitHub release with cross-platform binaries"
-run         = "mise-tasks/publish"
-
-[tasks.docker-build]
-description = "Build Docker image"
-run         = "docker build -t $PROJECT:$VERSION ."
-
-[tasks.docker-run]
-description = "Run Docker container"
-run         = "docker run --rm $PROJECT:$VERSION"
-
-[tasks.docker-test]
-description = "Run tests inside Docker"
-run         = "docker run --rm $PROJECT:$VERSION zig build test"
-
-[tasks.version]
-description = "Print current version"
-run         = "cat version.txt"
-
-[tasks.version-next]
-description = "Preview next semantic-release version"
-run         = "mise run upversion -- --dry-run"
-
-[tasks.upversion]
-description = "Run semantic-release to version and changelog"
-run         = "mise-tasks/upversion"
-
-[tasks.publish-rc]
-description = "Publish RC binaries to GitHub pre-release"
-run         = "mise-tasks/publish-rc"
+[settings]
+experimental = true

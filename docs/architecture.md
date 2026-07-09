@@ -8,7 +8,7 @@
 
 - mise managed environment, dev, tools, etc.
 - mise is used for running tasks
-- certain tasks like `build-prod`, `test`, `publish`, etc. are used by GitHub Actions
+- certain tasks like `build:prod`, `test`, `publish`, etc. are used by GitHub Actions
 - tasks can be overridder for your specific needs
 - the build system is project structure agnostic, all that matters is that mise tasks work
 
@@ -57,9 +57,9 @@ Key compatibility measures:
 - `sed_inplace` is used for scaffodling (text-replacement) and handles differences between macOS and GNU sed (abstracts platform quirks)
 - Bash 3.2+ required (macOS ships with Bash 3.2, avoiding Bash 4+ features ensures compatibility without upgrades)
 
-### Docker & Dev-Containers
+### Docker
 
-This is supported for workflows that may require containerization or publishing containers.
+Supported for workflows that require containerization or publishing containers.
 
 ## Template System
 
@@ -90,16 +90,16 @@ All templates must implement the same mise tasks so base GitHub Actions workflow
 | `build`        | Compile / build artifacts         |
 | `test`         | Run test suite                    |
 | `lint`         | Static analysis                   |
-| `lint-fix`     | Auto-fix lint issues              |
+| `lint:fix`     | Auto-fix lint issues              |
 | `format`       | Format source in-place            |
-| `format-check` | Check formatting (CI)             |
+| `format:check` | Check formatting (CI)             |
 | `publish`      | Publish to registry               |
-| `docker-build` | Build Docker image                |
-| `docker-run`   | Run in Docker                     |
-| `docker-test`  | Test in Docker                    |
+| `docker:build` | Build Docker image                |
+| `docker:run`   | Run in Docker                     |
+| `docker:test`  | Test in Docker                    |
 | `upversion`    | Bump version via semantic-release |
 | `version`      | Print current version             |
-| `version-next` | Preview next version              |
+| `version:next` | Preview next version              |
 
 `jdx/mise-action@v4` reads `mise.toml` and installs all declared tools (uv, zig, etc.) automatically — no template-specific GitHub Actions files needed.
 
@@ -111,7 +111,7 @@ All templates must implement the same mise tasks so base GitHub Actions workflow
 | uv       | mise-uv-template  | PyPI                  | `v*` tag |
 | zig      | mise-zig-template | GitHub Releases       | `v*` tag |
 
-All template packages share the same version tag as `mise-lib-template`. `publish-templates` scaffolds each template into `.tmp/`, sets the version, and calls `mise run publish` from the scaffolded project. The template's own `publish` task handles registry-specific logic.
+All template packages share the same version tag as `mise-lib-template`. `templates:publish` scaffolds each template into `.tmp/`, sets the version, and calls `mise run publish` from the scaffolded project. The template's own `publish` task handles registry-specific logic.
 
 ## References
 

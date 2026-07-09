@@ -2,7 +2,8 @@
 #MISE description="Cross-compile for all supported platforms"
 #MISE hide=true
 set -euo pipefail
-source "$(dirname "$0")/utils"
+cd "${MISE_PROJECT_ROOT:-$PWD}"
+source "${MISE_PROJECT_ROOT:-$PWD}/mise-tasks/utils"
 
 TARGETS=(
     "x86_64-linux"

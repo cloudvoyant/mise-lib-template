@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 #MISE description="Publish RC binaries to GitHub pre-release"
 set -euo pipefail
-source "$(dirname "$0")/utils"
+cd "${MISE_PROJECT_ROOT:-$PWD}"
+source "${MISE_PROJECT_ROOT:-$PWD}/mise-tasks/utils"
 
 SHORT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
-RC_TAG="v${VERSION}-rc.${SHORT_SHA}"   # semver: v2.2.0-rc.abc1234
-# Re-runs reuse the SHA but bump GITHUB_RUN_ATTEMPT; fold it in so a re-run mints a
+TIMESTAMP=$(date -u +%Y%m%d%H%M)
+# Human-readable UTC timestamp (yyyymmddhhmm) prefixes the sha so each commit gets a
+# unique, time-sortable RC tag. semver: v2.2.0-rc.202607091142.abc1234
+RC_TAG="v${VERSION}-rc.${TIMESTAMP}.${SHORT_SHA}"
+# Re-runs reuse the SHA/minute but bump GITHUB_RUN_ATTEMPT; fold it in so a re-run mints a
 # fresh tag instead of colliding with the pre-release already published.
 [ "${GITHUB_RUN_ATTEMPT:-1}" != "1" ] && RC_TAG="${RC_TAG}.${GITHUB_RUN_ATTEMPT}"
 
