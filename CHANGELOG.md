@@ -1,3 +1,17 @@
+## [2.12.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.11.0...v2.12.0) (2026-07-10)
+* move mise tasks to nested files, drop dev containers ([#2](https://github.com/cloudvoyant/mise-lib-template/issues/2))
+
+- move all inline mise.toml tasks to nested file tasks under mise-tasks/
+  (base + pnpm/uv/zig); namespaced task contract (docker:build, format:check, ...)
+- bare build/test/run/publish still resolve via a _default file, so
+  Dockerfile/docker-compose.yml need no change
+- remove .devcontainer and all dev-container references (PL-10)
+- scaffold self-deletes its entrypoint and strips mise-tasks/templates from
+  scaffolded projects; overlay chmod recurses into nested task dirs
+- timestamp RC versions (yyyymmddhhmm before the sha) for per-commit RC publishing
+- bump actions/upload-artifact to v7
+- update scaffold/contract/CI/docs; add override + executability test coverage
+
 ## [2.11.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.10.0...v2.11.0) (2026-07-09)
 * add semantic-release and CI workflow rules to CLAUDE.md
 
