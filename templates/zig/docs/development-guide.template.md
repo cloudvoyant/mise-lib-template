@@ -31,12 +31,12 @@ mise.toml             # Task runner and tool versions
 1. **Write code** in `src/lib.zig` (library logic) or `src/main.zig` (CLI)
 2. **Write tests** inline as `test "name" { ... }` blocks in `lib.zig`
 3. **Run tests**: `mise run test`
-4. **Check format**: `mise run format-check`; fix with `mise run format`
+4. **Check format**: `mise run format:check`; fix with `mise run format`
 
 ## Cross-Platform Compilation
 
 ```bash
-mise run build-all-platforms
+mise run build:all-platforms
 # Outputs to zig-out/release/{target}/bin/<project-name>
 ```
 

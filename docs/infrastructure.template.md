@@ -55,7 +55,7 @@ Key compatibility measures:
 - Line endings enforced to LF via `.editorconfig`
 - Bash 3.2+ required (macOS ships with Bash 3.2)
 
-### Docker & Dev-Containers
+### Docker
 
 Supported for workflows that require containerization or publishing containers.
 

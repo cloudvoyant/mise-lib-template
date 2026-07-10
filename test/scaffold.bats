@@ -173,6 +173,11 @@ teardown() {
     [ ! -f "$DEST_DIR/CHANGELOG.md" ]
     [ ! -f "$DEST_DIR/RELEASE_NOTES.md" ]
 
+    # Template-only mise-tasks should be removed, including the one-shot scaffold entrypoint
+    [ ! -f "$DEST_DIR/mise-tasks/scaffold" ]
+    [ ! -d "$DEST_DIR/mise-tasks/templates" ]
+    [ ! -f "$DEST_DIR/mise-tasks/template-utils" ]
+
     # Template section should be removed from mise.toml
     run grep "^# TEMPLATE$" "$DEST_DIR/mise.toml"
     [ "$status" -eq 1 ]
@@ -332,27 +337,22 @@ teardown() {
     run grep -q '^\[tasks.scaffold\]' mise.toml
     [ "$status" -eq 1 ]
 
-    run grep -q '^\[tasks.test-template\]' mise.toml
-    [ "$status" -eq 1 ]
+    [ ! -d "mise-tasks/templates" ]
 
     # Should NOT have TEMPLATE section
     run grep -q "^# TEMPLATE$" mise.toml
     [ "$status" -eq 1 ]
 }
 
-@test "template source has development commands in mise.toml" {
+@test "template source has development tasks as files" {
     cd "$SRC_DIR"
 
     # User-facing tasks (as file tasks)
     [ -f "mise-tasks/upgrade" ]
 
-    # Template development tasks (for testing the template itself)
-    run grep -q '\[tasks.test-template\]' mise.toml
-    [ "$status" -eq 0 ]
-
-    # TEMPLATE section (kept in source, removed when scaffolding)
-    run grep -q "^# TEMPLATE$" mise.toml
-    [ "$status" -eq 0 ]
+    # Template development tasks live under mise-tasks/templates/
+    [ -f "mise-tasks/templates/test" ]
+    [ -d "mise-tasks/templates" ]
 }
 
 @test "scaffold.sh processes install.sh.template when --non-interactive (defaults to no install.sh)" {

@@ -107,7 +107,6 @@ Migrate from mise-lib-template v<current> to v<target>
 ### IDE Configuration
 
 - [ ] .zed/settings.json - Check for editor settings
-- [ ] .devcontainer/devcontainer.json - Check for devcontainer updates
 
 ### Documentation
 
@@ -141,7 +140,7 @@ For each file with differences, create tasks like:
 ## Testing
 
 - [ ] Run: mise run test
-- [ ] Run: mise run test-template (if in template repo)
+- [ ] Run: mise run templates:test (if in template repo)
 - [ ] Verify builds work
 - [ ] Check CI passes
 

@@ -32,7 +32,7 @@
 **Common tasks:**
 
 - `mise run test` - Run project tests
-- `mise run test-template` - Run template bats tests
+- `mise run templates:test` - Run template bats tests
 - `mise run build` - Build project
 - `mise run install` - Install npm dependencies (semantic-release)
 
@@ -59,6 +59,9 @@ source "$(dirname "$0")/utils"
 - Source `mise-tasks/utils` for shared logging (`log_info`, `log_error`, `log_warn`)
 - Use `#MISE hide=true` for internal utilities not meant for direct invocation
 - Use `: <<DOCUMENTATION ... DOCUMENTATION` heredoc for complex script documentation
+- Nested task files (e.g. `mise-tasks/docker/build`) must source shared helpers by
+  absolute path — `source "${MISE_PROJECT_ROOT:-$PWD}/mise-tasks/utils"` — because
+  `$(dirname "$0")/utils` only resolves for flat files
 
 ---
 
@@ -93,7 +96,7 @@ Use Conventional Commits. No Claude attributions.
 
 Tests live in `test/` and use bats-core.
 
-- Run with: `mise run test-template`
+- Run with: `mise run templates:test`
 - Test files: `test/*.bats`
 - Tests cover scaffold behavior, mise.toml handling, case replacements, template cleanup
 - Add `--exclude='node_modules'` to any `rsync` calls in test setup
@@ -131,8 +134,8 @@ Tests live in `test/` and use bats-core.
 
 1. Create `templates/<name>/` directory
 2. Add only files that differ from the agnostic base
-3. Implement ALL contract tasks: build, test, lint, lint-fix, format, format-check,
-   publish, docker-build, docker-run, docker-test, upversion, version, version-next
+3. Implement ALL contract tasks: build, test, lint, lint:fix, format, format:check,
+   publish, docker:build, docker:run, docker:test, upversion, version, version:next
 4. Create `templates/<name>/CLAUDE.md.append` with language-specific conventions
 5. Do NOT add `.github/workflows/` — base workflows work via mise-action
 6. Add bats tests in `test/scaffold-templates.bats` and `test/docker.bats`
@@ -160,5 +163,5 @@ resolve to template-specific implementations via `mise.toml` task definitions.
 **Template-only scripts** (removed from scaffolded projects by scaffold cleanup):
 
 - `mise-tasks/template-utils` — template discovery helpers
-- `mise-tasks/publish-templates` — publishes template packages
-- `mise-tasks/publish-templates-rc` — publishes RC template packages
+- `mise-tasks/templates/` — template-dev task namespace (`templates:list`,
+  `templates:publish`, `templates:publish-rc`, `templates:test`)

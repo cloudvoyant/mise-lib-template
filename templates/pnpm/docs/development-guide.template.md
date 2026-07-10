@@ -19,7 +19,7 @@ mise run test
 
 # Check code quality
 mise run lint
-mise run format-check
+mise run format:check
 ```
 
 ## Project Structure
@@ -39,9 +39,9 @@ mise.toml              # Task runner and tool versions
 ## Development Workflow
 
 1. **Add a feature**: write code in `src/`, add tests in `tests/`
-2. **Check quality**: `mise run lint && mise run format-check` (`lint` runs ESLint + `tsc --noEmit`)
+2. **Check quality**: `mise run lint && mise run format:check` (`lint` runs ESLint + `tsc --noEmit`)
 3. **Run tests**: `mise run test`
-4. **Fix issues**: `mise run lint-fix && mise run format` (then fix any remaining type errors manually)
+4. **Fix issues**: `mise run lint:fix && mise run format` (then fix any remaining type errors manually)
 5. **Build**: `mise run build`
 
 ## Adding Dependencies

@@ -67,5 +67,5 @@ The following files are scaffold infrastructure. Do not override them unless the
 2. Implement all required tasks from the contract table above (in `mise.toml` and/or `mise-tasks/`)
 3. Add language-specific files as needed
 4. Create `CLAUDE.md.append` with language conventions (no bats/test-template context)
-5. Run `mise run list-templates` to verify the new template is discovered
+5. Run `mise run templates:list` to verify the new template is discovered
 6. Add bats tests in `test/scaffold-templates.bats` and `test/docker.bats`

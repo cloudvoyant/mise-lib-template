@@ -91,9 +91,9 @@ Prerequisites:
 Available Docker commands:
 
 ```bash
-❯ mise run docker-build    # Build the Docker image
-❯ mise run docker-run      # Run the project in a container
-❯ mise run docker-test     # Run tests in a container
+❯ mise run docker:build    # Build the Docker image
+❯ mise run docker:run      # Run the project in a container
+❯ mise run docker:test     # Run tests in a container
 ```
 
 The `Dockerfile` and `docker-compose.yml` are configured to install all required dependencies automatically. This is useful for:
@@ -101,28 +101,6 @@ The `Dockerfile` and `docker-compose.yml` are configured to install all required
 - Running tasks without installing tools locally
 - Ensuring consistency across different development machines
 - Testing in a clean environment
-
-### Using Dev Containers
-
-The template includes a pre-configured devcontainer for consistent cross-platform development environments across your team.
-
-Prerequisites on host:
-
-- Docker Desktop or Docker Engine
-- An editor with Dev Containers support (e.g. VS Code, Zed, WebStorm, etc.)
-
-Open the project in your editor and select "Reopen in Container". In your terminal you will find everything pre-installed including mise, gcloud and more:
-
-- Git, GitHub CLI, and Google Cloud CLI pre-installed
-- Git credentials automatically shared from host via SSH agent forwarding
-- Claude CLI credentials mounted from `~/.claude`
-- Docker-in-Docker support for building containers
-
-Authentication:
-
-- Git/GitHub: Automatic via SSH agent forwarding (no setup needed)
-- gcloud: Run `gcloud auth login` inside the container on first use
-- Claude: Automatically available if configured on host
 
 ## Template-Specific Tasks
 
@@ -201,7 +179,7 @@ depends = ["build"]
 run = "npm test"
 
 [tasks.publish]
-depends = ["test", "build-prod"]
+depends = ["test", "build:prod"]
 run = "npm publish"
 ```
 
@@ -212,17 +190,17 @@ The `publish` task defaults to GCP Artifact Registry. Edit it in `mise.toml` for
 ```toml
 # npm
 [tasks.publish]
-depends = ["test", "build-prod"]
+depends = ["test", "build:prod"]
 run = "npm publish"
 
 # PyPI
 [tasks.publish]
-depends = ["test", "build-prod"]
+depends = ["test", "build:prod"]
 run = "twine upload dist/*"
 
 # Docker
 [tasks.publish]
-depends = ["test", "build-prod"]
+depends = ["test", "build:prod"]
 run = "docker push myimage:$VERSION"
 ```
 
@@ -378,7 +356,7 @@ Check the Actions tab to confirm both steps succeed.
 
 `mise` tasks provide hooks for overriding CI/CD behavior:
 
-- **build-prod**: specifies how to create production builds in CI
+- **build:prod**: specifies how to create production builds in CI
 - **test**: specifies hot to test your build
 - **publish**: specifies how to publish to your artifact regiistry
 
