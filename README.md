@@ -3,11 +3,15 @@
 ![Version](https://img.shields.io/github/v/release/cloudvoyant/mise-lib-template?label=version)
 ![Release](https://github.com/cloudvoyant/mise-lib-template/workflows/Release/badge.svg)
 
-`mise-lib-template` is a template for building projects with automated versioning, testing, and GitHub Action powered CI/CD workflows. It is equipped with powerfulw scaffolding capabilities that support the following use cases:
+`mise-lib-template` is a template for building projects with automated versioning, testing, and GitHub Action powered CI/CD workflows. It is equipped with powerful scaffolding capabilities that support the following use cases:
 
 1. language agnostic libs built around mise -> adapt these as you need
 2. uv based python packages
-3. zig libraries and executables
+3. go libraries and CLIs
+4. rust libraries and binaries
+5. odin source libraries
+6. zig libraries and executables
+7. pnpm/TypeScript packages
 
 ## Features
 
@@ -36,7 +40,7 @@ Scaffold a new project:
 # Click "Use this template" on GitHub, then:
 git clone <your-new-repo>
 cd <your-new-repo>
-bash mise-tasks/scaffold --project your-project-name [--template uv|zig]
+bash mise-tasks/scaffold --project your-project-name [--template uv|go|rust|odin|zig|pnpm]
 ```
 
 Or just run the scaffold script without flags for an interactive setup!
@@ -80,13 +84,17 @@ Commit using conventional commits (`feat:`, `fix:`, `docs:`). Merge/push to main
 
 ## Templates
 
-This template supports three modes:
+Scaffold with `--template <name>`, or run the scaffold script with no flags for an interactive picker. See [templates/README.md](templates/README.md) for the full catalog and task contract.
 
-| Template | Language | Package Manager | Test Framework | Publish Target        |
-| -------- | -------- | --------------- | -------------- | --------------------- |
-| agnostic | (any)    | —               | —              | GCP Artifact Registry |
-| uv       | Python   | uv              | pytest         | PyPI                  |
-| zig      | Zig      | zig build       | zig test       | GitHub Releases       |
+| Template | Language   | Package Manager | Test Framework | Publish Target           |
+| -------- | ---------- | --------------- | -------------- | ------------------------ |
+| agnostic | (any)      | —               | —              | GCP Artifact Registry    |
+| uv       | Python     | uv              | pytest         | PyPI                     |
+| go       | Go         | go modules      | go test        | GitHub Releases          |
+| rust     | Rust       | cargo           | cargo test     | GitHub Releases          |
+| odin     | Odin       | (vendored)      | odin test      | GitHub Releases (source) |
+| zig      | Zig        | zig build       | zig test       | GitHub Releases          |
+| pnpm     | TypeScript | pnpm            | vitest         | npm                      |
 
 ## Documentation
 
