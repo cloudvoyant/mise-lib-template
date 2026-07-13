@@ -1,3 +1,41 @@
+## [2.13.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.12.0...v2.13.0) (2026-07-13)
+* add go language template
+
+Go library/CLI template implementing the full task contract (build,
+test, lint, format, publish, docker, version) with starter source, a
+Dockerfile, and CLAUDE.md conventions. Builds a runnable binary; module
+path is github.com/<org>/<project>; idiomatic flatcase package name.
+
+* add odin language template
+
+Odin template implementing the full task contract via the
+github:odin-lang/Odin backend, with starter source, a Dockerfile, and
+CLAUDE.md conventions. Distributes source (git tag / GitHub source
+release) rather than binaries, matching Odin's no-package-manager
+convention.
+
+* add rust language template
+
+Rust library/binary template implementing the full task contract with
+cargo build/test, rustfmt/clippy, starter source, a Dockerfile, and
+CLAUDE.md conventions. Distributes via git-tag install and
+cross-platform release binaries.
+
+* wire scaffold, tests, and docs for the new templates
+
+Shared scaffold, test, and catalog changes supporting the go, rust, and
+odin templates.
+
+- scaffold: add --github-org flag/prompt (git-remote fallback) so
+  module paths resolve to the user's org; render go packages as
+  flatcase; skip the install.sh prompt for source-only templates
+- tests: scaffold, docker, and template-export bats coverage for the
+  three templates
+- publish: attach the new templates to the template-package release
+  flow
+- docs: list the templates in the catalog README
+- gitignore: keep the rust template's committed Cargo.lock
+
 ## [2.12.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.11.0...v2.12.0) (2026-07-10)
 * move mise tasks to nested files, drop dev containers ([#2](https://github.com/cloudvoyant/mise-lib-template/issues/2))
 
