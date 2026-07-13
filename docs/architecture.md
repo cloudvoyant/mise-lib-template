@@ -70,7 +70,7 @@ The `templates/` directory contains language-specific override and extension fil
 1. Base scaffold runs first — copies all base files to the destination, excluding `templates/`, `test/`, and other dev-only paths
 2. Template overlay — if `--template <name>` is given, `rsync` overlays `templates/<name>/` over the scaffolded output (excluding `CLAUDE.md.append` and `README.md`)
 3. CLAUDE.md merge — `templates/<name>/CLAUDE.md.append` is appended (not replaced) to the output `CLAUDE.md` after the bats/test section is stripped
-4. Name replacement — sed replaces `mise_lib_template`/`mise-lib-template` with the project name in all overlaid files; `src/mise_lib_template/` directories are renamed via `mv`
+4. Name replacement — sed replaces every case variant of `mise_lib_template`/`mise-lib-template` with the project name in overlaid files, and rewrites the module-path org segment (`github.com/cloudvoyant/<repo>`) to the value of `--github-org` (default: derived from the git remote, else a placeholder). The rewrite is scoped to the project's own repo path so unrelated links are left intact. Package directories under `src/` are renamed via `mv` to the language's idiomatic case: `src/mise_lib_template/` → the project's snake_case name (Python), `src/miselibtemplate/` → its flatcase name (Go)
 5. Agnostic cleanup — `src/sample-code.txt` and `src/.gitkeep` are removed when a template is applied
 
 Files templates must NOT override (scaffold infrastructure):
@@ -105,11 +105,15 @@ All templates must implement the same mise tasks so base GitHub Actions workflow
 
 ### Publishing Pipeline
 
-| Template | Package           | Registry              | Trigger  |
-| -------- | ----------------- | --------------------- | -------- |
-| agnostic | mise-lib-template | GCP Artifact Registry | `v*` tag |
-| uv       | mise-uv-template  | PyPI                  | `v*` tag |
-| zig      | mise-zig-template | GitHub Releases       | `v*` tag |
+| Template | Package            | Registry                 | Trigger  |
+| -------- | ------------------ | ------------------------ | -------- |
+| agnostic | mise-lib-template  | GCP Artifact Registry    | `v*` tag |
+| uv       | mise-uv-template   | PyPI                     | `v*` tag |
+| zig      | mise-zig-template  | GitHub Releases          | `v*` tag |
+| go       | mise-go-template   | GitHub Releases          | `v*` tag |
+| rust     | mise-rust-template | GitHub Releases          | `v*` tag |
+| odin     | mise-odin-template | GitHub Releases (source) | `v*` tag |
+| pnpm     | mise-pnpm-template | npm                      | `v*` tag |
 
 All template packages share the same version tag as `mise-lib-template`. `templates:publish` scaffolds each template into `.tmp/`, sets the version, and calls `mise run publish` from the scaffolded project. The template's own `publish` task handles registry-specific logic.
 

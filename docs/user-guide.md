@@ -26,14 +26,17 @@ To install mise, run:
 
 ## Choosing a Template
 
-| Template | When to use                                      | Language                 | Registry              |
-| -------- | ------------------------------------------------ | ------------------------ | --------------------- |
-| agnostic | Any language — fill in your own tasks            | Any                      | GCP Artifact Registry |
-| uv       | Python library or CLI                            | Python 3.12+             | PyPI                  |
-| zig      | Zig library or binary with cross-platform builds | Zig 0.16.x               | GitHub Releases       |
-| pnpm     | TypeScript library published to npm              | TypeScript / Node.js LTS | npm                   |
+| Template | When to use                                      | Language                 | Registry                 |
+| -------- | ------------------------------------------------ | ------------------------ | ------------------------ |
+| agnostic | Any language — fill in your own tasks            | Any                      | GCP Artifact Registry    |
+| uv       | Python library or CLI                            | Python 3.12+             | PyPI                     |
+| go       | Go library or CLI with cross-platform builds     | Go 1.24+                 | GitHub Releases          |
+| rust     | Rust library/binary; git-install + binaries      | Rust (stable)            | GitHub Releases          |
+| odin     | Odin source library (distributed as source)      | Odin (github backend)    | GitHub Releases (source) |
+| zig      | Zig library or binary with cross-platform builds | Zig 0.16.x               | GitHub Releases          |
+| pnpm     | TypeScript library published to npm              | TypeScript / Node.js LTS | npm                      |
 
-All tools are installed automatically by mise — you do not need to install Python or Zig separately.
+All tools are installed automatically by mise — you do not need to install any language toolchain separately.
 
 ## Quick Start
 
@@ -44,8 +47,20 @@ Scaffold a new project:
 ❯ git clone <your-new-repo>
 ❯ cd <your-new-repo>
 ❯ bash mise-tasks/scaffold --project your-project-name --template uv    # Python
+❯ bash mise-tasks/scaffold --project your-project-name --template go    # Go
+❯ bash mise-tasks/scaffold --project your-project-name --template rust  # Rust
+❯ bash mise-tasks/scaffold --project your-project-name --template odin  # Odin
 ❯ bash mise-tasks/scaffold --project your-project-name --template zig   # Zig
 ❯ bash mise-tasks/scaffold --project your-project-name                   # agnostic (prompted)
+```
+
+For compiled languages whose package paths embed an org (e.g. Go's module
+path), pass `--github-org <org>` so the module resolves to
+`github.com/<org>/<project>` instead of a duplicated name. It defaults to the
+git remote's org, else a placeholder you can edit:
+
+```bash
+❯ bash mise-tasks/scaffold --project your-project-name --template go --github-org your-org
 ```
 
 Install dependencies and scaffold the template for your needs:
@@ -114,7 +129,7 @@ mise run format        # format code
 mise run publish       # publish to your registry
 ```
 
-`mise run install` installs the correct toolchain for your template (Python + uv, Zig, or node for semantic-release).
+`mise run install` installs the correct toolchain for your template (Python + uv, Go, Rust, Odin, Zig, or Node for semantic-release).
 
 ## The Basics
 
@@ -228,9 +243,12 @@ For PyPI (uv template):
 
 - `UV_PUBLISH_TOKEN` — PyPI API token (or configure [OIDC trusted publishing](https://docs.pypi.org/trusted-publishers/))
 
-For GitHub Releases (zig template):
+For GitHub Releases (go, rust, odin, zig templates):
 
 - `GH_TOKEN` or `GITHUB_TOKEN` — already present via GitHub Actions default token
+
+  The `odin` template distributes **source** (git tag / GitHub source release),
+  not binaries; go, rust, and zig attach cross-platform binaries to the release.
 
 For npm (pnpm template):
 
