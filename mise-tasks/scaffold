@@ -18,7 +18,9 @@ Options:
   --non-interactive    Skip prompts, use defaults
   --project NAME       Project name (default: destination directory name)
   --keep-claude        Keep .claude/ directory for AI workflows
-  --template NAME      Language template to apply: uv, zig (default: agnostic)
+  --template NAME      Language template to apply: uv, zig, go, rust, odin (default: agnostic)
+  --github-org SLUG    GitHub org/slug for module paths and install.sh
+                       (default: derived from git remote, else your-github-org)
 DOCUMENTATION
 
 # IMPORTS ----------------------------------------------------------------------
@@ -79,6 +81,25 @@ NON_INTERACTIVE=false
 KEEP_CLAUDE=false
 PROJECT_NAME=""
 TEMPLATE=""
+GITHUB_ORG=""
+
+# Org segment used in the template's own module paths (e.g. go.mod). Scaffold
+# rewrites github.com/$TEMPLATE_ORG/... to the user's org so paths like the Go
+# module become github.com/<their-org>/<project> instead of a duplicated name.
+TEMPLATE_ORG="cloudvoyant"
+
+# Templates that distribute source only (no compiled binaries) — the install.sh
+# binary-installer prompt is skipped for these. Odin has no package manager and links
+# via the host linker, so it ships as source (git tag / GitHub source release).
+SOURCE_ONLY_TEMPLATES=("odin")
+
+is_source_only() {
+    local t="$1" s
+    for s in "${SOURCE_ONLY_TEMPLATES[@]}"; do
+        [[ "$t" == "$s" ]] && return 0
+    done
+    return 1
+}
 
 # Default to project root directory
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -110,6 +131,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --template)
             TEMPLATE="$2"
+            shift 2
+            ;;
+        --github-org)
+            GITHUB_ORG="$2"
             shift 2
             ;;
         *)
@@ -232,14 +257,22 @@ apply_template() {
         sed_inplace "s/${TEMPLATE_SNAKE}/${PROJECT_SNAKE}/g"   "$file" || true
         sed_inplace "s/${TEMPLATE_KEBAB}/${PROJECT_KEBAB}/g"   "$file" || true
         sed_inplace "s/${TEMPLATE_FLAT}/${PROJECT_FLAT}/g"     "$file" || true
+        # Rewrite the module-path org (e.g. Go go.mod) to the user's org. Scoped to
+        # the project's own repo so other cloudvoyant links (claudevoyant) are untouched.
+        sed_inplace "s|github.com/${TEMPLATE_ORG}/${PROJECT_KEBAB}|github.com/${GITHUB_ORG}/${PROJECT_KEBAB}|g" "$file" || true
     done
 
-    # Rename mise_lib_template/ directory inside src/ if template created it
-    # (directory names are not changed by sed — requires explicit mv)
-    local src_pkg_dir="$dest/src/mise_lib_template"
-    if [[ -d "$src_pkg_dir" ]]; then
-        mv "$src_pkg_dir" "$dest/src/$PROJECT_SNAKE"
+    # Rename the template package directory inside src/ if one was created
+    # (directory names are not changed by sed — requires explicit mv).
+    # Naming convention differs per language: Python (uv) uses snake_case,
+    # Go uses flatcase (no underscores). Each template ships a distinct dir name.
+    if [[ -d "$dest/src/mise_lib_template" ]]; then
+        mv "$dest/src/mise_lib_template" "$dest/src/$PROJECT_SNAKE"
         log_info "Renamed src/mise_lib_template/ → src/$PROJECT_SNAKE/"
+    fi
+    if [[ -d "$dest/src/miselibtemplate" ]]; then
+        mv "$dest/src/miselibtemplate" "$dest/src/$PROJECT_FLAT"
+        log_info "Renamed src/miselibtemplate/ → src/$PROJECT_FLAT/"
     fi
 
     log_success "$template template applied"
@@ -323,6 +356,13 @@ log_info "Template: $TEMPLATE_NAME v$TEMPLATE_VERSION"
 # DEFAULT PROJECT NAME ---------------------------------------------------------
 DEFAULT_PROJECT=$(basename "$DEST_DIR")
 
+# DEFAULT GITHUB ORG -----------------------------------------------------------
+# Best-effort: derive from an existing git remote. Scaffold usually runs before
+# `git init`, so this is often empty — fall back to a placeholder the user edits.
+DEFAULT_GITHUB_ORG=$( { git -C "$DEST_DIR" remote get-url origin 2>/dev/null \
+    | sed -n 's|.*github.com[:/]\([^/]*\)/.*|\1|p'; } || true)
+DEFAULT_GITHUB_ORG="${DEFAULT_GITHUB_ORG:-your-github-org}"
+
 # INTERACTIVE PROMPTS ----------------------------------------------------------
 if [ "$NON_INTERACTIVE" = false ]; then
     log_info "Scaffolding new project from $TEMPLATE_NAME platform"
@@ -339,6 +379,12 @@ if [ "$NON_INTERACTIVE" = false ]; then
             log_error "Invalid project name. Use only letters, numbers, hyphens, and underscores."
         fi
     done
+
+    # Prompt for GitHub org/slug (skip if already supplied via --github-org)
+    if [ -z "$GITHUB_ORG" ]; then
+        read -p "GitHub org/slug [$DEFAULT_GITHUB_ORG]: " input_org
+        GITHUB_ORG="${input_org:-$DEFAULT_GITHUB_ORG}"
+    fi
 
     # Prompt for GCP registry configuration
     read -p "Configure GCP Artifact Registry? (y/N): " configure_gcp
@@ -358,15 +404,8 @@ if [ "$NON_INTERACTIVE" = false ]; then
         KEEP_CLAUDE=true
     fi
 
-    # Prompt for install.sh binary distribution script
-    read -p "Create install.sh for binary distribution? (y/N): " configure_install
-    if [[ "$configure_install" =~ ^[Yy]$ ]]; then
-        CONFIGURE_INSTALL=true
-    else
-        CONFIGURE_INSTALL=false
-    fi
-
-    # Prompt for language template — menu built dynamically from templates/ subdirs
+    # Prompt for language template — menu built dynamically from templates/ subdirs.
+    # Asked before install.sh so we can skip that prompt for source-only templates.
     if [[ -z "$TEMPLATE" ]]; then
         echo ""
         echo "Select a language template:"
@@ -385,10 +424,25 @@ if [ "$NON_INTERACTIVE" = false ]; then
         fi
     fi
 
+    # Prompt for install.sh binary distribution script — skipped for source-only
+    # templates (no binaries to install).
+    if is_source_only "$TEMPLATE"; then
+        CONFIGURE_INSTALL=false
+        log_info "Skipping install.sh — $TEMPLATE distributes source, not binaries"
+    else
+        read -p "Create install.sh for binary distribution? (y/N): " configure_install
+        if [[ "$configure_install" =~ ^[Yy]$ ]]; then
+            CONFIGURE_INSTALL=true
+        else
+            CONFIGURE_INSTALL=false
+        fi
+    fi
+
     echo ""
 else
     # Non-interactive mode: use defaults
     PROJECT_NAME="${PROJECT_NAME:-$DEFAULT_PROJECT}"
+    GITHUB_ORG="${GITHUB_ORG:-$DEFAULT_GITHUB_ORG}"
     CONFIGURE_GCP=false
     CONFIGURE_INSTALL=false
 
@@ -397,7 +451,7 @@ else
         exit 1
     fi
 
-    log_info "Non-interactive mode: project=$PROJECT_NAME"
+    log_info "Non-interactive mode: project=$PROJECT_NAME org=$GITHUB_ORG"
     if [[ -n "$TEMPLATE" ]]; then
         log_info "Non-interactive mode: template=$TEMPLATE"
     else
@@ -588,7 +642,7 @@ if [ -f "$RELEASE_YML" ]; then
     # Remove "Publish template packages" step (name + if + run + env block = ~5 lines)
     awk '/- name: Publish template packages/{skip=5; next} skip>0{skip--; next} {print}' "$RELEASE_YML" > "$RELEASE_YML.tmp" && mv "$RELEASE_YML.tmp" "$RELEASE_YML"
     # For zig/uv: publish does not use GCP — remove GCP guard from Publish package step
-    if [[ "$TEMPLATE" == "zig" || "$TEMPLATE" == "uv" ]]; then
+    if [[ "$TEMPLATE" == "zig" || "$TEMPLATE" == "uv" || "$TEMPLATE" == "go" || "$TEMPLATE" == "rust" || "$TEMPLATE" == "odin" ]]; then
         sed_inplace "s/steps.upversion.outputs.new_release_published == 'true' && env.GCP_SA_KEY != ''/steps.upversion.outputs.new_release_published == 'true'/" "$RELEASE_YML"
         log_info "Removed GCP_SA_KEY guard from Publish package step ($TEMPLATE publishes without GCP)"
     fi
@@ -645,8 +699,7 @@ log_info "Processing install.sh template"
 if [ "$CONFIGURE_INSTALL" = true ]; then
     # User wants install.sh - process the template
     if [ -f "$DEST_DIR/install.sh.template" ]; then
-        # Get GitHub org from git remote (or use placeholder)
-        GITHUB_ORG=$(git -C "$DEST_DIR" remote get-url origin 2>/dev/null | sed -n 's|.*github.com[:/]\([^/]*\)/.*|\1|p' || echo "your-github-org")
+        # GITHUB_ORG was resolved earlier (flag / prompt / git-remote fallback)
 
         # Process install.sh.template
         sed "s/{{PROJECT_NAME}}/$PROJECT_NAME/g; \
