@@ -46,6 +46,51 @@ log_info "Uploading mise-zig-template $VERSION binaries to GitHub release v$VERS
 (cd "$TMP_DIR/mise-zig-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
 log_success "mise-zig-template $VERSION assets attached to GitHub release v$VERSION"
 
+# --- mise-go-template → GitHub Releases (attach to existing release) ---
+# Go has no manifest version field; only version.txt is bumped. The mise-lib-template
+# GitHub Release at v$VERSION already exists (created by semantic-release before this runs).
+log_info "Scaffolding mise-go-template..."
+mkdir -p "$TMP_DIR/mise-go-template"
+mise run scaffold -- \
+    --src . --dest "$TMP_DIR/mise-go-template" \
+    --project mise-go-template --template go --non-interactive
+
+echo "$VERSION" > "$TMP_DIR/mise-go-template/version.txt"
+
+log_info "Uploading mise-go-template $VERSION binaries to GitHub release v$VERSION..."
+(cd "$TMP_DIR/mise-go-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
+log_success "mise-go-template $VERSION assets attached to GitHub release v$VERSION"
+
+# --- mise-rust-template → GitHub Releases (attach to existing release) ---
+# Same release as zig; GH_REPO ensures gh targets the base repo from .tmp/.
+log_info "Scaffolding mise-rust-template..."
+mkdir -p "$TMP_DIR/mise-rust-template"
+mise run scaffold -- \
+    --src . --dest "$TMP_DIR/mise-rust-template" \
+    --project mise-rust-template --template rust --non-interactive
+
+echo "$VERSION" > "$TMP_DIR/mise-rust-template/version.txt"
+sed_inplace "s/^version = \".*\"/version = \"$VERSION\"/" \
+    "$TMP_DIR/mise-rust-template/Cargo.toml"
+
+log_info "Uploading mise-rust-template $VERSION binaries to GitHub release v$VERSION..."
+(cd "$TMP_DIR/mise-rust-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
+log_success "mise-rust-template $VERSION assets attached to GitHub release v$VERSION"
+
+# --- mise-odin-template → GitHub Releases (attach to existing release) ---
+# Odin has no manifest — only version.txt needs the release version (simpler than zig).
+log_info "Scaffolding mise-odin-template..."
+mkdir -p "$TMP_DIR/mise-odin-template"
+mise run scaffold -- \
+    --src . --dest "$TMP_DIR/mise-odin-template" \
+    --project mise-odin-template --template odin --non-interactive
+
+echo "$VERSION" > "$TMP_DIR/mise-odin-template/version.txt"
+
+log_info "Uploading mise-odin-template $VERSION binaries to GitHub release v$VERSION..."
+(cd "$TMP_DIR/mise-odin-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
+log_success "mise-odin-template $VERSION assets attached to GitHub release v$VERSION"
+
 # --- mise-pnpm-template → npm ---
 log_info "Scaffolding mise-pnpm-template..."
 mkdir -p "$TMP_DIR/mise-pnpm-template"

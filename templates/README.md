@@ -4,11 +4,14 @@ Templates are sets of language-specific override and extension files that are la
 
 ## Available Templates
 
-| Name   | Language   | Registry              | Description                                             |
-| ------ | ---------- | --------------------- | ------------------------------------------------------- |
-| `uv`   | Python     | PyPI                  | Python library using uv, ruff, pytest                   |
-| `zig`  | Zig        | GitHub Releases + GCP | Zig library/binary with cross-platform build            |
-| `pnpm` | TypeScript | npm                   | TypeScript library using pnpm, vitest, ESLint, Prettier |
+| Name   | Language   | Registry                 | Description                                                |
+| ------ | ---------- | ------------------------ | ---------------------------------------------------------- |
+| `uv`   | Python     | PyPI                     | Python library using uv, ruff, pytest                      |
+| `zig`  | Zig        | GitHub Releases + GCP    | Zig library/binary with cross-platform build               |
+| `go`   | Go         | GitHub Releases          | Go library/CLI with cross-platform build                   |
+| `rust` | Rust       | GitHub Releases          | Rust library/binary; git-install + cross-platform binaries |
+| `odin` | Odin       | GitHub Releases (source) | Odin source library; git-tag/source releases, no binaries  |
+| `pnpm` | TypeScript | npm                      | TypeScript library using pnpm, vitest, ESLint, Prettier    |
 
 ## Task Contract
 

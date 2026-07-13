@@ -144,6 +144,12 @@ teardown() {
     echo "$listing" | grep -q "templates/zig/mise.toml"
 }
 
+@test "git archive includes templates/go/mise.toml" {
+    local listing
+    listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
+    echo "$listing" | grep -q "templates/go/mise.toml"
+}
+
 @test "git archive includes templates/uv/CLAUDE.md.append" {
     local listing
     listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
@@ -156,9 +162,49 @@ teardown() {
     echo "$listing" | grep -q "templates/zig/CLAUDE.md.append"
 }
 
+@test "git archive includes templates/go/CLAUDE.md.append" {
+    local listing
+    listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
+    echo "$listing" | grep -q "templates/go/CLAUDE.md.append"
+}
+
 @test "templates/uv/CLAUDE.md.append not in export-ignore" {
     # Ensure .gitattributes does not accidentally exclude templates/
     run git -C "$REPO_DIR" check-attr export-ignore -- templates/uv/CLAUDE.md.append
     # Should either be unset or not export-ignore
+    ! echo "$output" | grep -q "export-ignore: set"
+}
+
+@test "git archive includes templates/rust/mise.toml" {
+    local listing
+    listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
+    echo "$listing" | grep -q "templates/rust/mise.toml"
+}
+
+@test "git archive includes templates/rust/CLAUDE.md.append" {
+    local listing
+    listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
+    echo "$listing" | grep -q "templates/rust/CLAUDE.md.append"
+}
+
+@test "templates/rust/CLAUDE.md.append not in export-ignore" {
+    run git -C "$REPO_DIR" check-attr export-ignore -- templates/rust/CLAUDE.md.append
+    ! echo "$output" | grep -q "export-ignore: set"
+}
+
+@test "git archive includes templates/odin/mise.toml" {
+    local listing
+    listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
+    echo "$listing" | grep -q "templates/odin/mise.toml"
+}
+
+@test "git archive includes templates/odin/CLAUDE.md.append" {
+    local listing
+    listing=$(git -C "$REPO_DIR" archive HEAD --format=tar | tar -t)
+    echo "$listing" | grep -q "templates/odin/CLAUDE.md.append"
+}
+
+@test "templates/odin/CLAUDE.md.append not in export-ignore" {
+    run git -C "$REPO_DIR" check-attr export-ignore -- templates/odin/CLAUDE.md.append
     ! echo "$output" | grep -q "export-ignore: set"
 }

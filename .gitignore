@@ -40,6 +40,9 @@ zig-out/
 
 # Package manager files
 *.lock
+# Rust: keep the committed lock for reproducible git-tag/`cargo install --git`
+# consumers (rust template ships Cargo.lock; the broad *.lock above would hide it).
+!Cargo.lock
 package-lock.json
 yarn.lock
 pnpm-lock.yaml

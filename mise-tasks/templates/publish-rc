@@ -79,6 +79,51 @@ log_info "Uploading mise-zig-template $RC_TAG binaries to GitHub pre-release..."
 (cd "$TMP_DIR/mise-zig-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
 log_success "mise-zig-template $RC_TAG assets uploaded to GitHub pre-release"
 
+# --- mise-go-template RC → assets on GitHub pre-release ---
+# Pre-release already created above; go publish uploads to the existing release.
+log_info "Scaffolding mise-go-template RC..."
+mkdir -p "$TMP_DIR/mise-go-template"
+mise run scaffold -- \
+    --src . --dest "$TMP_DIR/mise-go-template" \
+    --project mise-go-template --template go --non-interactive
+
+echo "${RC_TAG#v}" > "$TMP_DIR/mise-go-template/version.txt"
+
+log_info "Uploading mise-go-template $RC_TAG binaries to GitHub pre-release..."
+(cd "$TMP_DIR/mise-go-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
+log_success "mise-go-template $RC_TAG assets uploaded to GitHub pre-release"
+
+# --- mise-rust-template RC → assets on GitHub pre-release ---
+# Pre-release already created above; rust publish uploads to existing release.
+log_info "Scaffolding mise-rust-template RC..."
+mkdir -p "$TMP_DIR/mise-rust-template"
+mise run scaffold -- \
+    --src . --dest "$TMP_DIR/mise-rust-template" \
+    --project mise-rust-template --template rust --non-interactive
+
+echo "${RC_TAG#v}" > "$TMP_DIR/mise-rust-template/version.txt"
+sed_inplace "s/^version = \".*\"/version = \"${RC_TAG#v}\"/" \
+    "$TMP_DIR/mise-rust-template/Cargo.toml"
+
+log_info "Uploading mise-rust-template $RC_TAG binaries to GitHub pre-release..."
+(cd "$TMP_DIR/mise-rust-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
+log_success "mise-rust-template $RC_TAG assets uploaded to GitHub pre-release"
+
+# --- mise-odin-template RC → assets on GitHub pre-release ---
+# Pre-release already created above; odin publish uploads to the existing release.
+# Odin has no manifest — only version.txt needs the RC version.
+log_info "Scaffolding mise-odin-template RC..."
+mkdir -p "$TMP_DIR/mise-odin-template"
+mise run scaffold -- \
+    --src . --dest "$TMP_DIR/mise-odin-template" \
+    --project mise-odin-template --template odin --non-interactive
+
+echo "${RC_TAG#v}" > "$TMP_DIR/mise-odin-template/version.txt"
+
+log_info "Uploading mise-odin-template $RC_TAG binaries to GitHub pre-release..."
+(cd "$TMP_DIR/mise-odin-template" && GH_REPO="$BASE_GH_REPO" mise run publish)
+log_success "mise-odin-template $RC_TAG assets uploaded to GitHub pre-release"
+
 # --- mise-pnpm-template RC → npm ---
 log_info "Scaffolding mise-pnpm-template RC..."
 mkdir -p "$TMP_DIR/mise-pnpm-template"

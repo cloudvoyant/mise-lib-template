@@ -67,6 +67,16 @@ run_scaffold() {
     assert_tasks_runnable "$DEST"
 }
 
+@test "go scaffold preserves docker task contract" {
+    run_scaffold "go"
+    assert_docker_tasks "$DEST"
+}
+
+@test "go scaffold: contract tasks are runnable" {
+    run_scaffold "go"
+    assert_tasks_runnable "$DEST"
+}
+
 @test "pnpm scaffold preserves docker task contract" {
     run_scaffold "pnpm"
     assert_docker_tasks "$DEST"
@@ -94,6 +104,11 @@ run_scaffold() {
     [ -f "$DEST/mise-tasks/docker/build" ]
 }
 
+@test "go: docker:build defined as a file task" {
+    run_scaffold "go"
+    [ -f "$DEST/mise-tasks/docker/build" ]
+}
+
 @test "pnpm: docker:build defined as a file task" {
     run_scaffold "pnpm"
     [ -f "$DEST/mise-tasks/docker/build" ]
@@ -117,6 +132,59 @@ run_scaffold() {
 
 @test "zig scaffold includes Dockerfile" {
     run_scaffold "zig"
+    [ -f "$DEST/Dockerfile" ]
+    grep -q 'mise run build' "$DEST/Dockerfile"
+    grep -q 'mise.*run.*run' "$DEST/Dockerfile"
+}
+
+@test "go scaffold includes Dockerfile" {
+    run_scaffold "go"
+    [ -f "$DEST/Dockerfile" ]
+    grep -q 'mise run build' "$DEST/Dockerfile"
+    grep -q 'mise.*run.*run' "$DEST/Dockerfile"
+}
+
+@test "rust scaffold preserves docker task contract" {
+    run_scaffold "rust"
+    assert_docker_tasks "$DEST"
+}
+
+@test "rust scaffold: contract tasks are runnable" {
+    run_scaffold "rust"
+    assert_tasks_runnable "$DEST"
+}
+
+@test "rust: docker:build defined as a file task" {
+    run_scaffold "rust"
+    [ -f "$DEST/mise-tasks/docker/build" ]
+}
+
+@test "rust scaffold includes Dockerfile" {
+    run_scaffold "rust"
+    [ -f "$DEST/Dockerfile" ]
+    grep -q 'mise run build' "$DEST/Dockerfile"
+    grep -q 'mise.*run.*run' "$DEST/Dockerfile"
+}
+
+@test "odin scaffold preserves docker task contract" {
+    run_scaffold "odin"
+    assert_docker_tasks "$DEST"
+}
+
+# Runs build+test which compile via clang for odin — skip if clang absent.
+@test "odin scaffold: contract tasks are runnable" {
+    command -v clang >/dev/null 2>&1 || skip "clang/LLVM required for odin build/test"
+    run_scaffold "odin"
+    assert_tasks_runnable "$DEST"
+}
+
+@test "odin: docker:build defined as a file task" {
+    run_scaffold "odin"
+    [ -f "$DEST/mise-tasks/docker/build" ]
+}
+
+@test "odin scaffold includes Dockerfile" {
+    run_scaffold "odin"
     [ -f "$DEST/Dockerfile" ]
     grep -q 'mise run build' "$DEST/Dockerfile"
     grep -q 'mise.*run.*run' "$DEST/Dockerfile"
