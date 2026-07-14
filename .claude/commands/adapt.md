@@ -17,7 +17,7 @@ I'll ask you about:
 
 - Project language and framework
 - Build and test requirements
-- Publishing targets (GCP, npm, Docker, etc.)
+- Publishing targets (GCP, npm, etc.)
 - CI/CD needs beyond SDK publishing? If so this template may not be fit for your needs.
 - Additional tooling requirements
 
@@ -218,10 +218,6 @@ VERSION = "{{exec(command='grep \"^version =\" Cargo.toml | cut -d\\'\"\\' -f2 |
 ```json
 { "assets": ["CHANGELOG.md", "Cargo.toml", "Cargo.lock"] }
 ```
-
-### Docker (Dockerfile or VERSION)
-
-Use `VERSION` file approach (same as Go above).
 
 ### Keep version.txt only if:
 

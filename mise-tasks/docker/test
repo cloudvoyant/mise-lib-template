@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="Run tests in Docker"
-set -euo pipefail
-cd "${MISE_PROJECT_ROOT:-$PWD}"
-docker compose run --rm tester

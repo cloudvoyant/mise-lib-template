@@ -10,9 +10,6 @@ CONTRACT_TASKS=(
     "format"
     "format:check"
     "publish"
-    "docker:build"
-    "docker:run"
-    "docker:test"
     "upversion"
     "version"
     "version:next"
@@ -28,7 +25,7 @@ RUNNABLE_TASKS=(
 )
 
 # Check that a task is declared in the given project directory.
-# Maps namespaced ids (docker:build) to nested files (mise-tasks/docker/build),
+# Maps namespaced ids (lint:fix) to nested files (mise-tasks/lint/fix),
 # accepts a _default file for a bare namespace, and keeps a legacy inline fallback.
 _task_exists() {
     local project_dir="$1"
@@ -41,7 +38,7 @@ _task_exists() {
 }
 
 # Usage: assert_contract_tasks "$scaffolded_project_dir"
-# Verifies all 13 contract tasks are declared in mise.toml or mise-tasks/.
+# Verifies all 10 contract tasks are declared in mise.toml or mise-tasks/.
 assert_contract_tasks() {
     local project_dir="$1"
     local missing=()
@@ -54,24 +51,6 @@ assert_contract_tasks() {
 
     if [[ ${#missing[@]} -gt 0 ]]; then
         echo "FAIL: Missing contract tasks in $project_dir: ${missing[*]}" >&2
-        return 1
-    fi
-    return 0
-}
-
-# Usage: assert_docker_tasks "$scaffolded_project_dir"
-# Verifies docker-build, docker-run, docker-test are declared.
-assert_docker_tasks() {
-    local project_dir="$1"
-    local docker_tasks=("docker:build" "docker:run" "docker:test")
-    local missing=()
-
-    for task in "${docker_tasks[@]}"; do
-        _task_exists "$project_dir" "$task" || missing+=("$task")
-    done
-
-    if [[ ${#missing[@]} -gt 0 ]]; then
-        echo "FAIL: Missing docker contract tasks: ${missing[*]}" >&2
         return 1
     fi
     return 0

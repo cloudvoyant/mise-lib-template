@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="Run project in Docker"
-set -euo pipefail
-cd "${MISE_PROJECT_ROOT:-$PWD}"
-docker compose run --rm runner

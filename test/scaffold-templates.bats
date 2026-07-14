@@ -42,7 +42,7 @@ run_scaffold() {
     # The agnostic base provides the infrastructure tasks; language tasks (lint, format, etc.)
     # are intentionally left as stubs for the user to fill in. Test only guaranteed tasks.
     run_scaffold ""
-    local base_tasks=("build" "test" "docker:build" "docker:run" "docker:test" "upversion" "version" "version:next")
+    local base_tasks=("build" "test" "upversion" "version" "version:next")
     for task in "${base_tasks[@]}"; do
         _task_exists "$DEST" "$task" || { echo "FAIL: base task '$task' missing"; false; }
     done
@@ -88,11 +88,6 @@ run_scaffold() {
 @test "uv: contract tasks are runnable" {
     run_scaffold "uv"
     assert_tasks_runnable "$DEST"
-}
-
-@test "uv: docker tasks present" {
-    run_scaffold "uv"
-    assert_docker_tasks "$DEST"
 }
 
 @test "uv: pyproject.toml created with project name" {
@@ -163,11 +158,6 @@ run_scaffold() {
     assert_tasks_runnable "$DEST"
 }
 
-@test "zig: docker tasks present" {
-    run_scaffold "zig"
-    assert_docker_tasks "$DEST"
-}
-
 @test "zig: build.zig created" {
     run_scaffold "zig"
     [ -f "$DEST/build.zig" ]
@@ -232,11 +222,6 @@ run_scaffold() {
 @test "go: contract tasks are runnable" {
     run_scaffold "go"
     assert_tasks_runnable "$DEST"
-}
-
-@test "go: docker tasks present" {
-    run_scaffold "go"
-    assert_docker_tasks "$DEST"
 }
 
 @test "go: go.mod created with project module path" {
@@ -331,11 +316,6 @@ run_scaffold() {
 @test "pnpm: contract tasks are runnable" {
     run_scaffold "pnpm"
     assert_tasks_runnable "$DEST"
-}
-
-@test "pnpm: docker tasks present" {
-    run_scaffold "pnpm"
-    assert_docker_tasks "$DEST"
 }
 
 @test "pnpm: package.json created with project name" {
@@ -492,9 +472,8 @@ run_scaffold() {
     grep -q 'uv build' "$DEST/mise-tasks/build/_default"
 }
 
-@test "zig: nested override replaced base (docker + publish)" {
+@test "zig: nested override replaced base (publish)" {
     run_scaffold "zig"
-    grep -q 'docker build -t'     "$DEST/mise-tasks/docker/build"
     grep -q 'build:all-platforms' "$DEST/mise-tasks/publish/_default"
 }
 
@@ -546,11 +525,6 @@ run_scaffold() {
 @test "rust: contract tasks are runnable" {
     run_scaffold "rust"
     assert_tasks_runnable "$DEST"
-}
-
-@test "rust: docker tasks present" {
-    run_scaffold "rust"
-    assert_docker_tasks "$DEST"
 }
 
 @test "rust: Cargo.toml created with project name" {
@@ -664,11 +638,6 @@ run_scaffold() {
     assert_tasks_runnable "$DEST"
 }
 
-@test "odin: docker tasks present" {
-    run_scaffold "odin"
-    assert_docker_tasks "$DEST"
-}
-
 @test "odin: src/lib.odin and src/main.odin created" {
     run_scaffold "odin"
     [ -f "$DEST/src/lib.odin" ]
@@ -739,9 +708,8 @@ run_scaffold() {
     [ -x "$DEST/mise-tasks/publish/rc" ]
 }
 
-@test "odin: nested override replaced base (docker + publish)" {
+@test "odin: nested override replaced base (publish)" {
     run_scaffold "odin"
-    grep -q 'docker build -t' "$DEST/mise-tasks/docker/build"
     # Odin's publish override is source-only (differs from the base TODO stub).
     grep -q 'source release' "$DEST/mise-tasks/publish/_default"
 }
