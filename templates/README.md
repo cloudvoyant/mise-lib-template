@@ -26,9 +26,6 @@ Every template **must** implement all of the following mise tasks:
 | `format`       | Format source code in-place                        |
 | `format-check` | Check formatting without modifying files (CI mode) |
 | `publish`      | Publish package to the appropriate registry        |
-| `docker-build` | Build the project Docker image                     |
-| `docker-run`   | Run the project in Docker                          |
-| `docker-test`  | Run tests in Docker                                |
 | `upversion`    | Bump version (delegates to `mise-tasks/upversion`) |
 | `version`      | Print current version                              |
 | `version-next` | Compute next semantic version from commits         |
@@ -45,7 +42,6 @@ Templates can provide any files their language requires. Non-exhaustive list:
 - `CLAUDE.md.append` — appended to root `CLAUDE.md` during scaffold (see below)
 - `docs/development-guide.template.md` — language-specific development guide (processed to `.md` during scaffold)
 - `.releaserc.json` — semantic-release config for the language's registry
-- `Dockerfile` — language-specific multi-stage Docker build
 - Language manifests: `pyproject.toml`, `build.zig`, `build.zig.zon`, etc.
 - `install.sh.template` — binary installer script (processed to `install.sh` during scaffold)
 - Package manager configs, linter configs, etc.
@@ -71,4 +67,4 @@ The following files are scaffold infrastructure. Do not override them unless the
 3. Add language-specific files as needed
 4. Create `CLAUDE.md.append` with language conventions (no bats/test-template context)
 5. Run `mise run templates:list` to verify the new template is discovered
-6. Add bats tests in `test/scaffold-templates.bats` and `test/docker.bats`
+6. Add bats tests in `test/scaffold-templates.bats`

@@ -3,8 +3,8 @@
 # https://mise.jdx.dev/
 #
 # Tasks live as files under mise-tasks/ (auto-loaded). Nested directories become
-# namespaced tasks: mise-tasks/docker/build -> `mise run docker:build`. A
-# `_default` file makes the directory itself runnable (`mise run docker`).
+# namespaced tasks: mise-tasks/build/prod -> `mise run build:prod`. A
+# `_default` file makes the directory itself runnable (`mise run build`).
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -32,7 +32,6 @@ python      = "latest"
 gcloud      = "latest"
 starship    = "latest"
 claude      = "latest"
-docker-cli  = "latest"
 
 
 # -----------------------------------------------------------------------------

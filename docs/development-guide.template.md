@@ -10,7 +10,6 @@ Before you begin, ensure you have the following installed:
 
 - `git` - Version control
 - `mise` - Tool and task runner ([installation](https://mise.jdx.dev/getting-started.html))
-- `docker` - Container runtime (optional, for containerized development)
 
 ### Initial Setup
 
@@ -27,7 +26,7 @@ Before you begin, ensure you have the following installed:
    mise install
    ```
 
-   `mise install` installs all tools declared in `mise.toml` (node, shellcheck, shfmt, gcloud, docker-cli, claude, etc.).
+   `mise install` installs all tools declared in `mise.toml` (node, shellcheck, shfmt, gcloud, claude, etc.).
 
 ### Build & Run
 
@@ -47,7 +46,6 @@ mise run test   # To run tests
 ├── src/               # Source code
 ├── test/              # Tests
 ├── mise.toml          # Tools, env vars, and task definitions
-├── Dockerfile         # Container definition for "docker-" tasks
 └── README.md          # Project overview
 ```
 
@@ -125,16 +123,6 @@ You can configure your development environment in the following ways:
 This is the recommended way of working with this project. Simply run `mise install` to install dependencies in a project-scoped environment.
 
 You can alternately use mise to install tools in a global scope, or use your preferred way to manually manage local dependencies.
-
-### Using Docker
-
-You can optionally skip any dev-tool setup/etc. by running everything through docker:
-
-```bash
-mise run docker:build
-mise run docker:run
-mise run docker:test
-```
 
 ## AI-Assisted Development
 

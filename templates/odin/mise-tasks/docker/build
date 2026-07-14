@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="Build Docker image"
-set -euo pipefail
-cd "${MISE_PROJECT_ROOT:-$PWD}"
-docker build -t $PROJECT:$VERSION .

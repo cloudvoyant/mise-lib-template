@@ -43,7 +43,6 @@ For other registries (see [user-guide.md](user-guide.md#cicd-secrets) for detail
 
 - npm: `NPM_TOKEN`
 - PyPI: `PYPI_TOKEN`
-- Docker Hub: `DOCKER_USERNAME`, `DOCKER_PASSWORD`
 
 ### Cross-Platform Support
 
@@ -54,10 +53,6 @@ Key compatibility measures:
 - Mise handles installation of tools across host platforms
 - Line endings enforced to LF via `.editorconfig`
 - Bash 3.2+ required (macOS ships with Bash 3.2)
-
-### Docker
-
-Supported for workflows that require containerization or publishing containers.
 
 ## References
 

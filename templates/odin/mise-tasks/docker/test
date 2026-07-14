@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-#MISE description="Run tests inside Docker"
-set -euo pipefail
-cd "${MISE_PROJECT_ROOT:-$PWD}"
-docker run --rm $PROJECT:$VERSION odin test src

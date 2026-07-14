@@ -23,7 +23,7 @@ Here's what this template gives you off the bat:
 - Easy CI/CD customization with language-agnostic bash scripting - No need to get too deep into GitHub Actions for customization. Modify the publish recipe, set GitHub Secrets and you're good to go.
 - Trunk based development and automated versioning with conventional commits - semantic-release will handle version bumping for you! Work on feature branches and merge to main for bumps.
 - GCP Artifact Registry publishing (easily modified for other registries)
-- Cross-platform (macOS, Linux, Windows via WSL) - run `mise install` to install dependencies, or run tasks via Docker
+- Cross-platform (macOS, Linux, Windows via WSL) - run `mise install` to install dependencies
 
 ## Requirements
 

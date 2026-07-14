@@ -59,7 +59,7 @@ source "$(dirname "$0")/utils"
 - Source `mise-tasks/utils` for shared logging (`log_info`, `log_error`, `log_warn`)
 - Use `#MISE hide=true` for internal utilities not meant for direct invocation
 - Use `: <<DOCUMENTATION ... DOCUMENTATION` heredoc for complex script documentation
-- Nested task files (e.g. `mise-tasks/docker/build`) must source shared helpers by
+- Nested task files (e.g. `mise-tasks/build/prod`) must source shared helpers by
   absolute path — `source "${MISE_PROJECT_ROOT:-$PWD}/mise-tasks/utils"` — because
   `$(dirname "$0")/utils` only resolves for flat files
 
@@ -135,10 +135,10 @@ Tests live in `test/` and use bats-core.
 1. Create `templates/<name>/` directory
 2. Add only files that differ from the agnostic base
 3. Implement ALL contract tasks: build, test, lint, lint:fix, format, format:check,
-   publish, docker:build, docker:run, docker:test, upversion, version, version:next
+   publish, upversion, version, version:next
 4. Create `templates/<name>/CLAUDE.md.append` with language-specific conventions
 5. Do NOT add `.github/workflows/` — base workflows work via mise-action
-6. Add bats tests in `test/scaffold-templates.bats` and `test/docker.bats`
+6. Add bats tests in `test/scaffold-templates.bats`
 7. Register in `templates/README.md`
 
 **Template file restrictions (must NOT override):**

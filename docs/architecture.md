@@ -44,7 +44,6 @@ For other registries (see [user-guide.md](user-guide.md#cicd-secrets) for detail
 
 - npm: `NPM_TOKEN`
 - PyPI: `PYPI_TOKEN`
-- Docker Hub: `DOCKER_USERNAME`, `DOCKER_PASSWORD`
 
 ### Cross-Platform Support
 
@@ -56,10 +55,6 @@ Key compatibility measures:
 - Line endings enforced to LF via `.editorconfig` (prevents git diff noise on Windows)
 - `sed_inplace` is used for scaffodling (text-replacement) and handles differences between macOS and GNU sed (abstracts platform quirks)
 - Bash 3.2+ required (macOS ships with Bash 3.2, avoiding Bash 4+ features ensures compatibility without upgrades)
-
-### Docker
-
-Supported for workflows that require containerization or publishing containers.
 
 ## Template System
 
@@ -94,9 +89,6 @@ All templates must implement the same mise tasks so base GitHub Actions workflow
 | `format`       | Format source in-place            |
 | `format:check` | Check formatting (CI)             |
 | `publish`      | Publish to registry               |
-| `docker:build` | Build Docker image                |
-| `docker:run`   | Run in Docker                     |
-| `docker:test`  | Test in Docker                    |
 | `upversion`    | Bump version via semantic-release |
 | `version`      | Print current version             |
 | `version:next` | Preview next version              |

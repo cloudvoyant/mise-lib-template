@@ -95,28 +95,6 @@ Mise runs the necessary task dependencies automatically!
 
 Commit using conventional commits (`feat:`, `fix:`, `docs:`). Merge/push to main and CI/CD will run automatically bumping your project version and publishing a package.
 
-### Using Docker
-
-The template includes Docker support for running tasks in isolated containers without installing dependencies on your host machine.
-
-Prerequisites:
-
-- Docker Desktop or Docker Engine
-
-Available Docker commands:
-
-```bash
-❯ mise run docker:build    # Build the Docker image
-❯ mise run docker:run      # Run the project in a container
-❯ mise run docker:test     # Run tests in a container
-```
-
-The `Dockerfile` and `docker-compose.yml` are configured to install all required dependencies automatically. This is useful for:
-
-- Running tasks without installing tools locally
-- Ensuring consistency across different development machines
-- Testing in a clean environment
-
 ## Template-Specific Tasks
 
 Regardless of which template you chose, the same `mise run` commands work identically:
@@ -212,11 +190,6 @@ run = "npm publish"
 [tasks.publish]
 depends = ["test", "build:prod"]
 run = "twine upload dist/*"
-
-# Docker
-[tasks.publish]
-depends = ["test", "build:prod"]
-run = "docker push myimage:$VERSION"
 ```
 
 Configure your `mise.toml` `[env]` section accordingly:
