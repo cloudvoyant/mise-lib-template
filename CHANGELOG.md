@@ -1,3 +1,45 @@
+## [2.14.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.13.0...v2.14.0) (2026-07-14)
+* remove Docker and Compose support
+
+Drop all Docker and Docker Compose containerization support from the
+template and every language template.
+
+Removed:
+- Base Dockerfile, docker-compose.yml, .dockerignore
+- Base docker:build/run/test mise tasks (mise-tasks/docker/)
+- docker:build/run/test task scripts from the zig, go, rust, and odin
+  templates
+- docker contract-task entries and assert_docker_tasks helper from
+  test/helpers/contract.bash
+- test/docker.bats and all docker assertions in scaffold-templates.bats
+- Docker references from CLAUDE.md, README, templates/README, adapt
+  command, and docs
+
+Note: rust's `cross` cross-compilation tooling (which uses Docker as a
+build backend) is unrelated to containerization support and is retained.
+
+templates:test passes (158 tests, 0 failures).
+
+* list go/rust/odin (and pnpm) templates in top-level README
+
+The repo README's use-case list, scaffold hint, and Templates table
+still showed only agnostic/uv/zig. Add go, rust, odin, and pnpm, point
+to templates/README.md for the full catalog, and fix a typo.
+
+* update user-facing docs for go/rust/odin templates
+
+Bring the top-level docs current with the go/rust/odin templates
+(v2.13.0) and this session's scaffold changes. Docs-only.
+
+- architecture.md: Publishing Pipeline table lists every template
+  package; scaffold name-replacement covers flatcase Go packages and
+  the scoped --github-org module-path rewrite
+- user-guide.md: template table + Quick Start add go/rust/odin, a
+  --github-org note, and a language-agnostic toolchain note; CI/CD
+  secrets note odin ships source, not binaries
+- CONTRIBUTING.md: migrate just -> mise, fix repo URL and plugin
+  command names, drop the non-existent publish.yml
+
 ## [2.13.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.12.0...v2.13.0) (2026-07-13)
 * add go language template
 
