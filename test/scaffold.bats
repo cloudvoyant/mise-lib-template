@@ -421,3 +421,47 @@ teardown() {
     [ ! -d "$INPLACE/templates" ]
     [ ! -d "$INPLACE/test" ]
 }
+
+@test "scaffold replaces docs/architecture.md and docs/user-guide.md with placeholders" {
+    bash ./mise-tasks/scaffold \
+        --src . \
+        --dest ../.. \
+        --non-interactive \
+        --project placeholderdocs
+
+    # Both docs must exist
+    [ -f "$DEST_DIR/docs/architecture.md" ]
+    [ -f "$DEST_DIR/docs/user-guide.md" ]
+
+    # Each must be the generated placeholder (title + Placeholder marker)
+    run grep -q "^# Architecture" "$DEST_DIR/docs/architecture.md"
+    [ "$status" -eq 0 ]
+    run grep -q "Placeholder" "$DEST_DIR/docs/architecture.md"
+    [ "$status" -eq 0 ]
+
+    run grep -q "^# User Guide" "$DEST_DIR/docs/user-guide.md"
+    [ "$status" -eq 0 ]
+    run grep -q "Placeholder" "$DEST_DIR/docs/user-guide.md"
+    [ "$status" -eq 0 ]
+
+    # Placeholders reference the new project name
+    run grep -q "placeholderdocs" "$DEST_DIR/docs/architecture.md"
+    [ "$status" -eq 0 ]
+    run grep -q "placeholderdocs" "$DEST_DIR/docs/user-guide.md"
+    [ "$status" -eq 0 ]
+
+    # Placeholder body actually landed (guards against an empty-file-past-the-title
+    # regression where only the title/marker survive but the TODO scaffolding is lost)
+    run grep -q "TODO:" "$DEST_DIR/docs/architecture.md"
+    [ "$status" -eq 0 ]
+    run grep -q "TODO:" "$DEST_DIR/docs/user-guide.md"
+    [ "$status" -eq 0 ]
+
+    # Template-only content must NOT leak into the scaffolded docs
+    run grep -q "Choosing a Template" "$DEST_DIR/docs/user-guide.md"
+    [ "$status" -eq 1 ]
+    run grep -q "GCP_SA_KEY" "$DEST_DIR/docs/architecture.md"
+    [ "$status" -eq 1 ]
+    run grep -q "mise.jdx.dev" "$DEST_DIR/docs/user-guide.md"
+    [ "$status" -eq 1 ]
+}
