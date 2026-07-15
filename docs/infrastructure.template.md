@@ -39,7 +39,7 @@ For GCP (default):
 - `GCP_SA_KEY` - Service account JSON key
 - `GCP_REGISTRY_PROJECT_ID`, `GCP_REGISTRY_REGION`, `GCP_REGISTRY_NAME` - Registry configuration
 
-For other registries (see [user-guide.md](user-guide.md#cicd-secrets) for details):
+For other registries:
 
 - npm: `NPM_TOKEN`
 - PyPI: `PYPI_TOKEN`

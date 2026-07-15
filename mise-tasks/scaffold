@@ -693,6 +693,57 @@ else
     log_info "No documentation templates found"
 fi
 
+# GENERATE PLACEHOLDER DOCS ----------------------------------------------------
+# The platform-copy rsync above brought docs/architecture.md and docs/user-guide.md
+# across verbatim — that content is specific to this template and irrelevant to the
+# scaffolded project. Overwrite both with minimal, project-named starter skeletons so
+# the new project begins with clean placeholders to fill in. Runs after name
+# substitution and after *.template.md processing, so $PROJECT_NAME is resolved and
+# nothing regenerates these files afterward.
+log_info "Generating placeholder docs (architecture.md, user-guide.md)"
+
+if [ -d "$DEST_DIR/docs" ]; then
+    cat > "$DEST_DIR/docs/architecture.md" <<EOF
+# Architecture
+
+> Placeholder — describe how \`$PROJECT_NAME\` is designed and why. Replace this file as the project takes shape.
+
+## Overview
+
+<!-- TODO: one or two paragraphs on what $PROJECT_NAME is and the problem it solves. -->
+
+## Design
+
+<!-- TODO: major components, their responsibilities, and how they fit together. -->
+
+## Implementation
+
+<!-- TODO: notable implementation details, trade-offs, and decisions. -->
+EOF
+
+    cat > "$DEST_DIR/docs/user-guide.md" <<EOF
+# User Guide
+
+> Placeholder — explain how to install and use \`$PROJECT_NAME\`. Replace this file with real usage docs.
+
+## Requirements
+
+<!-- TODO: tools, versions, and setup a user needs before using $PROJECT_NAME. -->
+
+## Getting Started
+
+<!-- TODO: the minimal steps to install and run $PROJECT_NAME. -->
+
+## Usage
+
+<!-- TODO: common commands, options, and examples. -->
+EOF
+
+    log_success "Placeholder docs generated"
+else
+    log_info "No docs/ directory in destination — skipping placeholder docs"
+fi
+
 # PROCESS install.sh TEMPLATE --------------------------------------------------
 log_info "Processing install.sh template"
 
@@ -754,7 +805,7 @@ echo "  2. Edit mise.toml tasks to implement build/test/publish for your languag
 echo "  3. Run 'mise install' to install required tools"
 echo "  4. Use 'mise run <task>' or 'mise tasks' to see available commands"
 echo "  5. Add your source code to src/"
-echo "  6. Configure GitHub organization secrets (see docs/user-guide.md)"
+echo "  6. Configure GitHub organization secrets (see docs/infrastructure.md)"
 echo "  7. Initialize git and commit: git init && git add . && git commit -m 'Initial commit'"
 echo ""
 

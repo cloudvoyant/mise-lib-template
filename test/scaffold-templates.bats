@@ -246,9 +246,9 @@ run_scaffold() {
 
 @test "go: org rewrite leaves unrelated cloudvoyant links intact" {
     # The org rewrite must be scoped to the project's repo path, not blanket-replace
-    # every github.com/cloudvoyant/* link (e.g. the claudevoyant plugin in the docs).
+    # every github.com/cloudvoyant/* link (e.g. the claudevoyant plugin marketplace).
     run_scaffold "go" "my-lib" "acme-corp"
-    grep -q 'github.com/cloudvoyant/claudevoyant' "$DEST/docs/user-guide.md"
+    grep -q 'cloudvoyant/claudevoyant' "$DEST/CONTRIBUTING.md"
     ! grep -rq 'acme-corp/claudevoyant' "$DEST"
 }
 
