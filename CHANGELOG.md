@@ -1,3 +1,32 @@
+## [2.15.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.14.0...v2.15.0) (2026-07-15)
+* emit placeholder docs during scaffold
+
+Overwrite the platform's docs/architecture.md and docs/user-guide.md
+with minimal, project-named starter skeletons so a scaffolded project
+begins with clean placeholders rather than template-specific content
+copied verbatim from this repo.
+
+**scaffold**
+- generate placeholder architecture.md and user-guide.md after name
+  substitution and *.template.md processing, so $PROJECT_NAME is
+  resolved and nothing regenerates the files afterward
+- skip generation when the destination has no docs/ directory
+- point the final "next steps" hint at docs/infrastructure.md for
+  GitHub secrets instead of the removed user-guide reference
+
+- drop the dangling user-guide.md#cicd-secrets links from
+  architecture.md and infrastructure.template.md, which no longer
+  resolve once docs are replaced with placeholders
+
+**tests**
+- add a scaffold.bats case asserting both docs are replaced with the
+  project-named placeholders, the TODO body survives, and no
+  template-only content leaks through
+- retarget the go org-rewrite test at CONTRIBUTING.md now that the
+  user-guide link it relied on is gone
+
+Closes #7
+
 ## [2.14.0](https://github.com/cloudvoyant/mise-lib-template/compare/v2.13.0...v2.14.0) (2026-07-14)
 * remove Docker and Compose support
 
